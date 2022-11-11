@@ -1,0 +1,19 @@
+{
+    "nodes": {
+        "<nodename>": {
+            "pub-endpoint": "<clearnet-fqdn/ip-address>",
+            "api-con": "http://<node-(internal)-ip/hostname>:<port>/",
+
+            "comment": "/* from here: data to be displayed on the webinterface */",
+            "internal-v4": "172.2x.xxx.xxx",
+            "internal-v6": "fdxx:...",
+            "internal-v4ll": "169.254.xxx.xxx",
+            "internal-v6ll": "fe80::..."
+        }
+    },
+    "MNT": "YOUR-MNT", // your MNT tag
+    "listen": "0.0.0.0",
+    "port": 8042, 
+    "flask-debug": false, // optional; default false
+    "flask-template-dir": "../frontend/" // optional; default "../frontend"
+}
