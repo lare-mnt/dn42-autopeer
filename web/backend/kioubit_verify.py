@@ -35,9 +35,10 @@ class AuthVerifyer ():
         #, base64.b64decode(params), "sha512")
         h = SHA512.new()
         h.update(base64.b64decode(params))
-        print(h.hexdigest())
+        #print(h.hexdigest())
         verifier = DSS.new(self.pubkey, 'fips-186-3')
-        print(verifier.verify(h, signature))
+        valid = verifier.verify(h, signature)
+        return valid
 
 if __name__ == "__main__":
     example_com_verifier = AuthVerifyer("example.com")

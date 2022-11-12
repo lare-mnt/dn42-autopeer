@@ -16,6 +16,7 @@
     "MNT": "YOUR-MNT", // your MNT tag
     "listen": "0.0.0.0",
     "port": 8042, 
+    "domain": "example.org", // domain to use for kioubit verification service
     "flask-secret-key": "<secret-please-replace>", // secret key for session cookies
     "flask-debug": false, // optional; default false
     "flask-template-dir": "../frontend/" // optional; default "../frontend"

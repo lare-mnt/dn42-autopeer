@@ -1,8 +1,10 @@
 #! /usr/bin/env python3
 
 from flask import Flask, Response, redirect, render_template, request, session, abort
-import json, os
+import json, os, base64
 from functools import wraps
+
+import kioubit_verify
 
 app = Flask(__name__)
 
@@ -40,6 +42,7 @@ class Config (dict):
         print(self._config)
 
 config = Config()
+
 def auth_required():
     def wrapper(f):
         @wraps(f)
@@ -50,6 +53,15 @@ def auth_required():
                 return f(*args, **kwargs)
         return decorated
     return wrapper
+
+
+kverifyer = kioubit_verify.AuthVerifyer(config["domain"])
+@app.route("/api/auth/kverify", methods=["GET", "POST"])
+def kioubit_auth():
+    params = request.args["params"]
+    signature = request.args["signature"]
+    print(base64.b64decode(params))
+    return str(kverifyer.verify(params, signature))
 
 
 @app.route("/login",methods=["GET","POST"])
