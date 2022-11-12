@@ -1,4 +1,46 @@
+:root {
+    --bg-color: #aaa;
+    --text-color: black;
+    --other-background: #444;
+}
+
 body {
-    color: wheat;
-    background-color: black;
+    margin: 0;
+    width: auto;
+    height: auto;
+    background-color: var(--bg-color);
+}
+
+header {
+    background-color: var(--other-background);
+    height: 50px;
+}
+.content {
+    width: 100%;
+    height: calc(100% - 55px);
+    margin: initial;
+}
+
+.flex {
+    display: flex;
+    flex-direction: column;
+}
+
+.flex>* {
+    flex-flow: column;
+    /* width: 1fr;
+    height: 1fr; */
+    /* background-color: aquamarine; */
+    margin: auto;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    height: 40px;
+    background: var(--other-background);
+}
+footer.flex {
+    flex-direction: row;
 }

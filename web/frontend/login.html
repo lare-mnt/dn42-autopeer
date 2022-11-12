@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="https://dn42.g-load.eu/auth/">
+    <link rel="stylesheet" href="https://dn42.g-load.eu/auth/assets/button-font/auth.css"> 
+    <input type="hidden" id="return" name="return" value="{{return_addr}}">
+    <button type="submit" class="kioubit-btn kioubit-btn-primary kioubit-btn-dark kioubit-btn-main">
+    <span class="icon-kioubit-auth"></span>Authenticate with Kioubit.dn42
+    </button>
+</form>
+
+<form action="" method="post">
+    <input type="">
+</form>
+
+{% endblock %}

@@ -2,6 +2,7 @@
 
 from flask import Flask, Response, redirect, render_template, request, session, abort
 import json, os
+from functools import wraps
 
 app = Flask(__name__)
 
@@ -38,17 +39,43 @@ class Config (dict):
 
         print(self._config)
 
-
 config = Config()
+def auth_required():
+    def wrapper(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            if not "logged_in" in session:
+                return redirect(f"login?return={request.url}")
+            else:
+                return f(*args, **kwargs)
+        return decorated
+    return wrapper
+
+
+@app.route("/login",methods=["GET","POST"])
+def login():
+    if request.method == "GET":
+        session["return_url"] = request.args["return"]
+        return render_template("login.html", config=config, return_addr=request.args["return"])
+
+    #elif request.method == "POST":
+        
+@app.route("/peer", methods=["GET","POST"])
+@auth_required()
+def peer():
+    return request.args
     
 @app.route("/")
 def index():
-    print(config)
-    return render_template("index.html", config=config)
+    # print(config._config["nodes"])
+    # for node in config["nodes"].values():
+    #     print (node)
+    return render_template("index.html", config=config._config)
 
 def main():
     app.static_folder= config["flask-template-dir"]+"/static/"
     app.template_folder=config["flask-template-dir"]
+    app.secret_key = config["flask-secret-key"]
     app.run(host=config["listen"], port=config["port"], debug=config["flask-debug"], threaded=True)
 
 

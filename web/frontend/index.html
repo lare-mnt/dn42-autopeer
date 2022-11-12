@@ -1,17 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{config["MNT"]}} Autopeering</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
-<body>
-    <div class="content">
-        <div>{{config["MNT"]}}</div>
-        <div></div>
-        <div></div>
-    </div>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+<div>
+    
+</div>
+<div>
+    
+</div>
+<div>
+    <table>
+        <thead>
+            <tr>
+                <th>Country</th>
+                <th>City</th>
+                <th>peerings</th>
+                <th>Peer!</th>
+            </tr>
+        </thead>
+        {% for node in config["nodes"] %} 
+        <tr>
+            <td>{{config["nodes"][node]["country"]}}</td>
+            <td>{{config["nodes"][node]["city"]}}</td>
+            <td></td>
+            <td><a href="peer?node={{node}}">peer</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}
