@@ -36,9 +36,10 @@ class Config (dict):
         if not "flask-template-dir" in self._config:
             self._config["flask-template-dir"] = "../frontend" 
         
-        if not "flask-debug" in self._config:
-            self._config["flask-debug"] = False 
-
+        if not "debug-mode" in self._config:
+            self._config["debug-mode"] = False 
+        if not "base-dir" in self._config:
+            self._config["base-dir"] = "/"
         print(self._config)
 
 config = Config()
@@ -122,7 +123,7 @@ def main():
     app.static_folder= config["flask-template-dir"]+"/static/"
     app.template_folder=config["flask-template-dir"]
     app.secret_key = config["flask-secret-key"]
-    app.run(host=config["listen"], port=config["port"], debug=config["flask-debug"], threaded=True)
+    app.run(host=config["listen"], port=config["port"], debug=config["debug-mode"], threaded=True)
 
 
 if __name__ == "__main__":
