@@ -47,7 +47,7 @@ def auth_required():
     def wrapper(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            if not "logged_in" in session:
+            if not "login" in session:
                 return redirect(f"login?return={request.url}")
             else:
                 return f(*args, **kwargs)
@@ -58,31 +58,65 @@ def auth_required():
 kverifyer = kioubit_verify.AuthVerifyer(config["domain"])
 @app.route("/api/auth/kverify", methods=["GET", "POST"])
 def kioubit_auth():
-    params = request.args["params"]
-    signature = request.args["signature"]
-    print(base64.b64decode(params))
-    return str(kverifyer.verify(params, signature))
+    try: 
+        params = request.args["params"]
+        signature = request.args["signature"]
+    except KeyError:
+        return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg='"params" or "signature" missing')
 
+    
+    success, msg = kverifyer.verify(params, signature)
+    try: print(base64.b64decode(params))
+    except: print("invalid Base64 data provided")
+    
+
+    if success:
+        session["user-data"] = msg
+        session["login"] = msg['mnt']
+        return redirect(session["return_url"])
+    else:
+        return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 @app.route("/login",methods=["GET","POST"])
 def login():
     if request.method == "GET":
-        session["return_url"] = request.args["return"]
-        return render_template("login.html", config=config, return_addr=request.args["return"])
+        session["return_url"] = request.args["return"] if "return" in request.args else ""
+        
+        return render_template("login.html", session=session, config=config, return_addr=session["return_url"])
+    elif request.method == "POST":
+        if config["domain"] == "svc.burble.dn42:8042" and request.form["logincode"] and request.form["logincode"] == "eyJhc24iOjQyNDI0MjMwMzUsImFsbG93ZWQ0IjoiMTcyLjIyLjEyNS4xMjhcLzI2LDE3Mi4yMC4wLjgxXC8zMiIsImFsbG93ZWQ2IjoiZmQ2Mzo1ZDQwOjQ3ZTU6OlwvNDgsZmQ0MjpkNDI6ZDQyOjgxOjpcLzY0IiwibW50IjoiTEFSRS1NTlQifQo=":
+            print("abc")
+            user_data = json.loads(base64.b64decode(request.form["logincode"]))
+            session["login"] = user_data['mnt']
+            session["user-data"] = user_data
+        return redirect(request.args["return"])
 
-    #elif request.method == "POST":
         
 @app.route("/peer", methods=["GET","POST"])
 @auth_required()
 def peer():
-    return request.args
-    
+    if request.method == "GET":
+        if "node" in request.args and request.args["node"] in config["nodes"]:
+            return render_template("peer.html", config=config, selected_node=request.args["node"])
+            return str(config["nodes"][request.args["node"]])
+        else: return render_template("peer.html",  session=session,config=config)
+    elif request.method == "POST":
+        return "POST /peer"
+
+    else:
+        return 405
+
 @app.route("/")
 def index():
     # print(config._config["nodes"])
     # for node in config["nodes"].values():
     #     print (node)
-    return render_template("index.html", config=config._config)
+    return render_template("index.html",  session=session, config=config._config)
 
 def main():
     app.static_folder= config["flask-template-dir"]+"/static/"

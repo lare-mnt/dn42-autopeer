@@ -5,11 +5,14 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{config["MNT"]}} Autopeering</title>
-    <link rel="stylesheet" href="static/style.css">
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <header class="flex">{{config["MNT"]}}</header>
-    <div class="content flex">{% block content %}{% endblock %}</div>
+    <header class="flex flex-row"><div></div><a href="/">{{config["MNT"]}} Autopeering</a>{% if "login" in session %}<a href="/logout">logout</a>{% else %} <a href="/login?return=/peer">login</a>{%endif%}</header>
+    <div class="content flex">
+        {% block content %}
+        {% endblock %}
+    </div>
     <footer class="flex">
         <div></div>
         <div></div>

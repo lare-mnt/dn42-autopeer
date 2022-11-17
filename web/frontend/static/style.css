@@ -2,6 +2,7 @@
     --bg-color: #aaa;
     --text-color: black;
     --other-background: #444;
+    /* --accent-color: ; */
 }
 
 body {
@@ -15,15 +16,25 @@ header {
     background-color: var(--other-background);
     height: 50px;
 }
+a {
+    color: var(--text-color);
+}
+
 .content {
     width: 100%;
     height: calc(100% - 55px);
-    margin: initial;
+    margin: auto;
+}
+.content>* {
+    padding: 5%;
 }
 
 .flex {
     display: flex;
     flex-direction: column;
+}
+.flex-row {
+    flex-direction: row;
 }
 
 .flex>* {

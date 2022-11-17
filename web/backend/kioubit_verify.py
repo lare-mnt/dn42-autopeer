@@ -1,8 +1,8 @@
 #! /usr/bin/env python3
 
-import base64, os
-from OpenSSL.crypto import load_publickey, FILETYPE_PEM, verify, X509
+import base64, os, json, time
 import OpenSSL
+from OpenSSL.crypto import load_publickey, FILETYPE_PEM, verify, X509
 
 
 PUBKEY_FILE = os.path.dirname(__file__)+"/kioubit-auth-pubkey.pem"
@@ -33,12 +33,18 @@ class AuthVerifyer ():
             verify(self.x509, sig, params, 'sha512')
         except OpenSSL.crypto.Error:
             return False, "Signature Failed"
-        #h = SHA512.new()
-        #h.update(base64.b64decode(params))
-        #print(h.hexdigest())
-        #verifier = DSS.new(self.pubkey, 'deterministic-rfc6979')
-        #valid = verifier.verify(h, base64.b64decode(signature))
-        return True, ""
+        
+        try:
+            user_data = json.loads(base64.b64decode(params))
+            if (time.time() - user_data["time"] )> 60:
+                return False, "Signature to old"
+        except json.decoder.JSONDecodeError:
+            # we shouldn't get here unless kioubit's service is misbehaving
+            return False, "invalid JSON"
+        except KeyError:
+            return False, "value not found in JSON"
+        print(user_data)
+        return True, user_data
 
 if __name__ == "__main__":
     example_com_verifier = AuthVerifyer("example.com")

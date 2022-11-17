@@ -11,6 +11,7 @@
     <table>
         <thead>
             <tr>
+                <th>NodeName</th>
                 <th>Country</th>
                 <th>City</th>
                 <th>peerings</th>
@@ -19,6 +20,7 @@
         </thead>
         {% for node in config["nodes"] %} 
         <tr>
+            <td>{{node}}</td>
             <td>{{config["nodes"][node]["country"]}}</td>
             <td>{{config["nodes"][node]["city"]}}</td>
             <td></td>

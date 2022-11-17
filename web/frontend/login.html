@@ -2,6 +2,12 @@
 
 {% block content %}
 
+{% if msg %}
+<div style="background-color: red;">
+    {{msg}}
+</div>
+{% endif %}
+
 <form action="https://dn42.g-load.eu/auth/">
     <link rel="stylesheet" href="https://dn42.g-load.eu/auth/assets/button-font/auth.css"> 
     <input type="hidden" id="return" name="return" value='{{"http://"+config["domain"]+"/api/auth/kverify"}}'>
@@ -11,7 +17,8 @@
 </form>
 
 <form action="" method="post">
-    <input type="">
+    <input type="text" name="logincode" id="logincode">
+    <input type="submit" value="submit">
 </form>
 
 {% endblock %}
