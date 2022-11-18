@@ -19,11 +19,11 @@
 {% if config["debug-mode"] %}
 <form action="" method="post" class="flex">
     <label for="debug">Debug login, if you see this in Production contact {{config["MNT"]}}</label><br>
-    <input type="text" name="mnt" id="mnt" placeholder="YOUR-MNT"><br>
-    <input type="text" name="asn" id="asn" placeholder="AS4242420000"><br>
-    <input type="text" name="allowed-v4" id="allowed-v4" placeholder="ipv4 subnet"><br>
-    <input type="text" name="allowed-v6" id="allowed-v6" placeholder="ipv6 subnet"><br>
-    <input type="number" name="theanswer" id="theanswer" placeholder="The answer for everything"><br>
+    <input type="text" name="mnt" id="mnt" placeholder="YOUR-MNT" required><br>
+    <input type="text" name="asn" id="asn" placeholder="AS4242420000" required><br>
+    <input type="text" name="allowed4" id="allowed4" placeholder="ipv4 subnet (optional)"><br>
+    <input type="text" name="allowed6" id="allowed6" placeholder="ipv6 subnet (optional)"><br>
+    <input type="number" name="theanswer" id="theanswer" placeholder="The answer for everything" required><br>
     <input type="submit" value="login">
 </form>
 {% endif %}

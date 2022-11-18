@@ -3,7 +3,7 @@
 from flask import Flask, Response, redirect, render_template, request, session, abort
 import json, os, base64
 from functools import wraps
-
+from ipaddress import ip_address, ip_network
 import kioubit_verify
 
 app = Flask(__name__)
@@ -49,7 +49,7 @@ def auth_required():
         @wraps(f)
         def decorated(*args, **kwargs):
             if not "login" in session:
-                return redirect(f"login?return={request.url}")
+                return redirect(f"{config['base-dir']}login?return={request.url}")
             else:
                 return f(*args, **kwargs)
         return decorated
@@ -89,28 +89,57 @@ def login():
         session["return_url"] = request.args["return"] if "return" in request.args else ""
         
         return render_template("login.html", session=session, config=config, return_addr=session["return_url"])
-    elif request.method == "POST":
-        if config["domain"] == "svc.burble.dn42:8042" and request.form["logincode"] and request.form["logincode"] == "eyJhc24iOjQyNDI0MjMwMzUsImFsbG93ZWQ0IjoiMTcyLjIyLjEyNS4xMjhcLzI2LDE3Mi4yMC4wLjgxXC8zMiIsImFsbG93ZWQ2IjoiZmQ2Mzo1ZDQwOjQ3ZTU6OlwvNDgsZmQ0MjpkNDI6ZDQyOjgxOjpcLzY0IiwibW50IjoiTEFSRS1NTlQifQo=":
-            print("abc")
-            user_data = json.loads(base64.b64decode(request.form["logincode"]))
-            session["login"] = user_data['mnt']
-            session["user-data"] = user_data
-        return redirect(request.args["return"])
+    elif request.method == "POST" and config["debug-mode"]:
+        try:
+            mnt = request.form["mnt"]
+            asn = request.form["asn"]
+            asn = asn[2:] if asn[:1].lower() == "as" else asn
+            if "allowed4" in request.form:
+                allowed4 = request.form["allowed4"]
+                allowed4 = allowed_v4.split(",") if "," in allowed_v4 else allowed_v4
+            else:
+                allowed4 = None
+            if "allowed6" in request.form:
+                allowed6 = request.form["allowed6"]
+                allowed6 = allowed_v6.split(",") if "," in allowed_v6 else allowed_v6
+            else:
+                allowed6 = None
+            session["user-data"] = {'asn':asn,'allowed4': allowed4, 'allowed6': allowed6,'mnt':mnt, 'authtype': "debug"}
+            session["login"] = mnt
+            return redirect(session["return_url"])
+        except KeyError:
+            msg = "not all required field were specified"
+            return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
+    elif request.method == "POST" and not config["debug-mode"]:
+        abort(405)
+    return redirect(request.args["return"])
 
         
-@app.route("/peer", methods=["GET","POST"])
+@app.route("/peerings/delete", methods=["GET","DELETE"])
 @auth_required()
-def peer():
+def peerings_delete():
+
+    return f"{request.method} /peerings/delete?{str(request.args)}{str(request.form)}"
+@app.route("/peerings/new", methods=["GET","POST"])
+@auth_required()
+def peerings_new():
+    return render_template("peerings-new.html",  session=session,config=config)
+
+    return f"{request.method} /peerings/new {str(request.args)}{str(request.form)}"
+@app.route("/peerings", methods=["GET","POST","DELETE"])
+@auth_required()
+def peerings():
     if request.method == "GET":
         if "node" in request.args and request.args["node"] in config["nodes"]:
-            return render_template("peer.html", config=config, selected_node=request.args["node"])
-            return str(config["nodes"][request.args["node"]])
-        else: return render_template("peer.html",  session=session,config=config)
+            return render_template("peerings.html", config=config, selected_node=request.args["node"])
+        else: 
+            return render_template("peerings.html",  session=session,config=config)
     elif request.method == "POST":
-        return "POST /peer"
-
+        return peerings_new()
+    elif request.method == "DELETE":
+        return peerings_delete()
     else:
-        return 405
+        abort(405)
 
 @app.route("/")
 def index():
