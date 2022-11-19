@@ -21,6 +21,9 @@ class Config (dict):
         #self.__getitem__ = self._config.__getitem__
         super().__init__(self)
 
+    def __contains__(self, o):
+        return self._config.__contains__(o)
+
     def __delitem__(self, v):
         raise NotImplementedError()
         super().__delitem__(self,v)
@@ -96,12 +99,12 @@ def login():
             asn = asn[2:] if asn[:1].lower() == "as" else asn
             if "allowed4" in request.form:
                 allowed4 = request.form["allowed4"]
-                allowed4 = allowed_v4.split(",") if "," in allowed_v4 else allowed_v4
+                allowed4 = allowed4.split(",") if "," in allowed4 else allowed4
             else:
                 allowed4 = None
             if "allowed6" in request.form:
                 allowed6 = request.form["allowed6"]
-                allowed6 = allowed_v6.split(",") if "," in allowed_v6 else allowed_v6
+                allowed6 = allowed6.split(",") if "," in allowed6 else allowed6
             else:
                 allowed6 = None
             session["user-data"] = {'asn':asn,'allowed4': allowed4, 'allowed6': allowed6,'mnt':mnt, 'authtype': "debug"}
@@ -152,7 +155,12 @@ def main():
     app.static_folder= config["flask-template-dir"]+"/static/"
     app.template_folder=config["flask-template-dir"]
     app.secret_key = config["flask-secret-key"]
-    app.run(host=config["listen"], port=config["port"], debug=config["debug-mode"], threaded=True)
+    if "production" in config and config["production"] == False:
+        app.run(host=config["listen"], port=config["port"], debug=config["debug-mode"], threaded=True)
+    else:
+        from waitress import serve
+        serve(app, host=config["listen"], port=config["port"])
+
 
 
 if __name__ == "__main__":
