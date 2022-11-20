@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 
 from flask import Flask, Response, redirect, render_template, request, session, abort
-import json, os, base64
+import json, os, base64, logging
 from functools import wraps
 from ipaddress import ip_address, ip_network
 import kioubit_verify
@@ -16,7 +16,7 @@ class Config (dict):
             if os.path.exists("./config.json"): self.configfile = "./config.json"
             elif os.path.exists("/etc/dn42-autopeer/config.json"): self.configfile = "/etc/dn42-autopeer/config,json"
             else: raise FileNotFoundError("no config file found in ./config.json or /etc/dn42-autopeer/config.json")
-        self.load_config()
+        self._load_config()
         self.keys = self._config.keys
         #self.__getitem__ = self._config.__getitem__
         super().__init__(self)
@@ -29,7 +29,8 @@ class Config (dict):
         super().__delitem__(self,v)
     def __getitem__(self, k):
         return self._config[k]
-    def load_config(self):
+     
+    def _load_config(self):
         with open(self.configfile) as cf:
             try:
                 self._config = json.load(cf)
@@ -43,10 +44,58 @@ class Config (dict):
             self._config["debug-mode"] = False 
         if not "base-dir" in self._config:
             self._config["base-dir"] = "/"
-        print(self._config)
+        
+        if not "peerings-data" in self._config:
+            self._config["peering-data"] = "./peerings"
+        logging.info(self._config)
+
+class PeeringManager(dict):
+
+    def __init__(self, peering_dir):
+        self._peering_dir = peering_dir
+
+        self._load_peerings()
+        self.keys = self._peerings
+
+    def __contains__(self, o):
+        return self._peerings.__contains__(o)
+
+    def __getitem__(self, k):
+        return self._peerings[k]
+    
+    def __setitem__(self, k, v):
+        pass
+    def __delitem__(self, v):
+        pass
+    
+    def _load_peerings(self):
+        if not os.path.exists(self._peering_dir):
+            os.mkdir(self._peering_dir)
+        if not os.path.exists(f"{self._peering_dir}/peerings.json"):
+            with open(f"{self._peering_dir}/peerings.json", "x") as p: 
+                json.dump([], p)
+        with open(f"{self._peering_dir}/peerings.json","r") as p:
+            self._peerings = json.load(p)
+        self.peerings = {}
+        missing_peerings = False
+        for peering in self._peerings:
+            if os.path.exists(f"{self._peering_dir}/{peering}.json"):
+                with open(f"{self._peering_dir}/{peering}.json") as peer_cfg:
+                    self.peerings[peering] = json.load(peer_cfg)
+            else:
+                logging.warning(f"peering with id {peering} doesn't exist. removing reference in `{self._peering_dir}/peerings.json`")
+                self._peerings.remove(peering)
+                missing_peerings = True
+        if missing_peerings:
+            with open(f"{self._peering_dir}/peerings.json","w") as p:
+                json.dump(self._peerings, p, indent=4)
+
+    def get_peerings_by_mnt(self, mnt):
+        raise NotImplementedError()
+       
 
 config = Config()
-
+peerings = PeeringManager(config["peering-dir"])
 def auth_required():
     def wrapper(f):
         @wraps(f)
@@ -70,8 +119,8 @@ def kioubit_auth():
 
     
     success, msg = kverifyer.verify(params, signature)
-    try: print(base64.b64decode(params))
-    except: print("invalid Base64 data provided")
+    try: logging.debug(base64.b64decode(params))
+    except: logging.debug("invalid Base64 data provided")
     
 
     if success:
@@ -156,9 +205,11 @@ def main():
     app.template_folder=config["flask-template-dir"]
     app.secret_key = config["flask-secret-key"]
     if "production" in config and config["production"] == False:
+        logging.getLogger(__name__).setLevel(logging.INFO)
         app.run(host=config["listen"], port=config["port"], debug=config["debug-mode"], threaded=True)
     else:
         from waitress import serve
+        logging.getLogger(__name__).setLevel(logging.NOTSET)
         serve(app, host=config["listen"], port=config["port"])
 
 

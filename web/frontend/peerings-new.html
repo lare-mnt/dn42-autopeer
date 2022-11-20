@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form action="peer" method="post">
+<form action="" method="post">
     <select name="node" id="node">
         {% for node in config["nodes"] %}
             <option value="{{node}}" {% if selected_node %}{% if selected_node == node %}selected{% endif %}{% endif %} >{{node}}</option>

@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import base64, os, json, time
+import base64, os, json, time, logging
 import OpenSSL
 from OpenSSL.crypto import load_publickey, FILETYPE_PEM, verify, X509
 
@@ -15,20 +15,20 @@ class AuthVerifyer ():
             pk_content = ""
             for line in pk.readlines():
                 pk_content += line
-            print(pk_content)
+            logging.debug(pk_content)
         pkey = load_publickey(FILETYPE_PEM, pk_content)
         self.x509 = X509()
         self.x509.set_pubkey(pkey)
         
-        print(self.x509)
+        logging.debug(self.x509)
         
     def verify(self, params, signature):
-        # print(type(sig))
+        # logging.debug(type(sig))
         #OpenSSL_verify(self.pubkey, sig
         #, base64.b64decode(params), "sha512")
         sig = base64.b64decode(signature)
-        print(f"sig: {sig}")
-        print(f"params: {params}")
+        logging.info(f"sig: {sig}")
+        logging.info(f"params: {params}")
         try:
             verify(self.x509, sig, params, 'sha512')
         except OpenSSL.crypto.Error:
@@ -43,12 +43,12 @@ class AuthVerifyer ():
             return False, "invalid JSON"
         except KeyError:
             return False, "value not found in JSON"
-        print(user_data)
+        logging.debug(user_data)
         return True, user_data
 
 if __name__ == "__main__":
     example_com_verifier = AuthVerifyer("example.com")
-    print (example_com_verifier.verify(
+    logging.info (example_com_verifier.verify(
         params=b"eyJhc24iOiI0MjQyNDIzMDM1IiwidGltZSI6MTY2ODI2NjkyNiwiYWxsb3dlZDQiOiIxNzIuMjIuMTI1LjEyOFwvMjYsMTcyLjIwLjAuODFcLzMyIiwiYWxsb3dlZDYiOiJmZDYzOjVkNDA6NDdlNTo6XC80OCxmZDQyOmQ0MjpkNDI6ODE6OlwvNjQiLCJtbnQiOiJMQVJFLU1OVCIsImF1dGh0eXBlIjoibG9naW5jb2RlIiwiZG9tYWluIjoic3ZjLmJ1cmJsZS5kbjQyIn0=",
         signature=b"MIGIAkIBAmwz3sQ1vOkH8+8e0NJ8GsUqKSaazIWmYDp60sshlTo7gCAopZOZ6/+tD6s+oEGM1i5mKGbHgK9ROATQLHxUZecCQgCa2N828uNn76z1Yg63/c7veMVIiK4l1X9TCUepJnJ3mCto+7ogCP+2vQm6GHipSNRF4wnt6tZbir0HZvrqEnRAmA=="
         ) )

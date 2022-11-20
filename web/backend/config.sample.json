@@ -20,6 +20,7 @@
     "port": 8042, 
     "domain": "example.org", // domain to use for kioubit verification service
     "base-dir": "/", //optional:directury for which it is reachable (if behind some sort of reverse proxy) default "/"
+    "peerings-dir": "/path/to/peering-configs/", // optional; default "$PWD/peerings", directory to save existing peerings to
     "production": true, //optional, default true; 
     "debug-mode": false, // optional; whethet to enable debugging; default false
     "flask-secret-key": "<secret-please-replace>", // secret key for session cookies

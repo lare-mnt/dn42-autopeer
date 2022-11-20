@@ -1,13 +1,14 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script>
 
-<form action="peer" method="post">
-    <select name="node" id="node">
-        {% for node in config["nodes"] %}
-            <option value="{{node}}" {% if selected_node %}{% if selected_node == node %}selected{% endif %}{% endif %} >{{node}}</option>
-        {% endfor %}
-    </select>
-</form>
+</script>
+<div>
+    <a href="peerings/new"><button>add new</button></a>
+</div>
+<div>
+
+</div>
 
 {% endblock %}
