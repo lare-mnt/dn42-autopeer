@@ -1,7 +1,7 @@
 {
     "nodes": {
         "<nodename>": {
-            "pub-endpoint": "<clearnet-fqdn/ip-address>", //optional, recommended, default: None/null
+            "endpoint": "<clearnet-fqdn/ip-address>", //optional, recommended, default: None/null
             "api-con": "http://<node-(internal)-ip/hostname>:<port>/", // required
             "#comment": "/* from here: data to be displayed on the webinterface */",
             "country": "...", // Countrycode: 2 capital letters
@@ -16,6 +16,7 @@
         }
     },
     "MNT": "YOUR-MNT", // your MNT tag
+    "ASN": "424242000", //Your ASN (used to generate default peer ListenPorts)
     "listen": "0.0.0.0",
     "port": 8042, 
     "domain": "example.org", // domain to use for kioubit verification service

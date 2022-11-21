@@ -1,13 +1,84 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<script>
+    function form_validate(form) {
+        
+    }
+</script>
 
-<form action="" method="post">
-    <select name="node" id="node">
-        {% for node in config["nodes"] %}
-            <option value="{{node}}" {% if selected_node %}{% if selected_node == node %}selected{% endif %}{% endif %} >{{node}}</option>
-        {% endfor %}
-    </select>
+<div>
+    {% for node in config["nodes"] %}
+    <a href="?node={{node}}">
+        <button {% if selected_node %}{% if selected_node == node %}class="button-selected"{% endif %}{% endif %} >
+            {{node}}
+        </button>
+    </a>
+    {% endfor %}
+</div>
+<form action="" method="post" class="flex" onsubmit="form_validate(this)">
+    <table>
+        <tr>
+            <td><label for="peer-asn">Your ASN</label></td>
+            <td></td>
+            <td><input type="text" name="peer-asn" id="peer-asn" disabled="disabled" value="{{session['user-data']['asn']}}"></td>
+        </tr>
+        <tr>
+            <td><label for="peer-wgkey">your Wireguard Publickey</label></td>
+            <td></td>
+            <td><input type="text" name="peer-wgkey" id="peer-wgkey"></td>
+        </tr>
+        <tr>
+            <td><label for="peer-endpoint">your Endpoint</label></td>
+            <td><input type="checkbox" name="peer-endpoint-enabled" id="peer-endpoint-enabled" checked></td>
+            <td><input type="text" name="peer-endpoint" id="peer-endpoint"></td>
+        </tr>
+        <tr>
+            <td><label for="peer-v6ll">your ipv6 LinkLocal</label></td>
+            <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" checked></td>
+            <td><input type="text" name="peer-v6ll" id="peer-v6ll"></td>
+        </tr>
+        <tr>
+            <td><label for="peer-v4">your ipv4</label></td>
+            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled"></td>
+            <td><input type="text" name="peer-v4" id="peer-v4"></td>
+        </tr>
+        <tr>
+            <td><label for="peer-v6">your ipv6</label></td>
+            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"></td>
+            <td><input type="text" name="peer-v6" id="peer-v6"></td>
+        </tr>
+    </table>
 </form>
+<div class="example-config">
+    
+    <p>wg-quick:</p>
+    <div id="node-wireguard">
+        <code>
+            [Interface] <br>
+            PrivateKey = &ltyour private key&gt <br>
+            ListenPort = <span id="example-config-peer-port">2{{config["ASN"][-4:]}}</span><br>
+            <span class="example-config-ipv4">PostUp = ip address add <span class="example-config-peer-ipv4">...</span>/32 peer <span class="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span>
+            <span class="example-config-ipv6">PostUp = ip address add <span class="example-config-peer-ipv6">...</span>/128 peer <span class="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span>
+            <span class="example-config-ipv6ll">PostUp = ip address add <span class="example-config-peer-ipv6ll">...</span>/128 peer <span class="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span><br></span>
+            Table = off <br>
+            <br>
+            [Peer] <br>
+            PublicKey = <span class="exmple-config-node-pubkey">{% if selected_node %}{{config["nodes"][selected_node]["wg-key"]}}{% else %} ... {% endif %}</span><br>
+            Endpoint = <span class="exmple-config-node-endpoint">{% if selected_node %}{{config["nodes"][selected_node]["endpoint"]}}{% else %} ... {% endif %}</span>:<span class="example-config-node-port">{% if selected_node %}{% if session["user-data"]["asn"].startswith("AS424242") %}5{{session["user-data"]["asn"][-4:]}}{% else %} ... {% endif %}{% else %} ... {% endif %}</span><br>
+            AllowedIPs = <span class="example-config-node-v6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span>,172.20.0.0/14,172.31.0.0/16,10.0.0.0/8,fd00::/8 <br>  
+        </code>
+    </div>
+    
+    <p>bird(2) config:</p>
+    <div id="peer-bird">
+        <code id="example-config-bird">
+            protocol bgp dn42_{{config["MNT"][:-4].lower()}} from dnpeers { <br>
+            &#9;neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %} as {{config["ASN"]}};<br>
+            &#9;interface "dn42_{{config["MNT"][:-4].lower()}}";<br>
+            } <br>
+        </code>
+    </div>
+</div>
 
 {% endblock %}

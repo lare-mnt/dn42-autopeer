@@ -91,6 +91,7 @@ class PeeringManager(dict):
                 json.dump(self._peerings, p, indent=4)
 
     def get_peerings_by_mnt(self, mnt):
+        return [{}]
         raise NotImplementedError()
        
 
@@ -143,6 +144,10 @@ def login():
         return render_template("login.html", session=session, config=config, return_addr=session["return_url"])
     elif request.method == "POST" and config["debug-mode"]:
         try:
+            print(request.form)
+            if request.form["theanswer"] != "42":
+                msg = "what is the answer for everything?"
+                return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
             mnt = request.form["mnt"]
             asn = request.form["asn"]
             asn = asn[2:] if asn[:1].lower() == "as" else asn
@@ -175,17 +180,23 @@ def peerings_delete():
 @app.route("/peerings/new", methods=["GET","POST"])
 @auth_required()
 def peerings_new():
-    return render_template("peerings-new.html",  session=session,config=config)
-
-    return f"{request.method} /peerings/new {str(request.args)}{str(request.form)}"
+    if request.method == "GET":
+        print(session)
+        if "node" in request.args and request.args["node"] in config["nodes"]:
+            return render_template("peerings-new.html", config=config, selected_node=request.args["node"], peerings=peerings)
+        else: 
+            return render_template("peerings-new.html",  session=session,config=config, peerings=peerings)
+    elif request.method == "POST":
+        return """<div>creating peerings is not (yet) implemented</div><div><a href="../">return</a>"""
+        return f"{request.method} /peerings/new {str(request.args)}{str(request.form)}"
 @app.route("/peerings", methods=["GET","POST","DELETE"])
 @auth_required()
-def peerings():
+def peerings_view():
     if request.method == "GET":
         if "node" in request.args and request.args["node"] in config["nodes"]:
-            return render_template("peerings.html", config=config, selected_node=request.args["node"])
+            return render_template("peerings.html", config=config, selected_node=request.args["node"], peerings=peerings)
         else: 
-            return render_template("peerings.html",  session=session,config=config)
+            return render_template("peerings.html",  session=session,config=config, peerings=peerings)
     elif request.method == "POST":
         return peerings_new()
     elif request.method == "DELETE":
@@ -205,11 +216,11 @@ def main():
     app.template_folder=config["flask-template-dir"]
     app.secret_key = config["flask-secret-key"]
     if "production" in config and config["production"] == False:
-        logging.getLogger(__name__).setLevel(logging.INFO)
+        logging.getLogger(__name__).setLevel(0)
         app.run(host=config["listen"], port=config["port"], debug=config["debug-mode"], threaded=True)
     else:
         from waitress import serve
-        logging.getLogger(__name__).setLevel(logging.NOTSET)
+        logging.getLogger(__name__).setLevel(logging.INFO)
         serve(app, host=config["listen"], port=config["port"])
 
 

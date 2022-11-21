@@ -1,14 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<script>
-
-</script>
 <div>
     <a href="peerings/new"><button>add new</button></a>
 </div>
 <div>
-
+{% for peering in peerings.get_peerings_by_mnt(session["login"]) %}
+    {{peering}} <br>
+{% endfor %}
 </div>
 
 {% endblock %}

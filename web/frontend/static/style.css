@@ -24,6 +24,7 @@ a {
     width: 100%;
     height: calc(100% - 55px);
     margin: auto;
+    padding-bottom: 50px;
 }
 .content>* {
     padding: 5%;
@@ -54,4 +55,20 @@ footer {
 }
 footer.flex {
     flex-direction: row;
+}
+
+.example-config {
+    background-color: white;
+    padding: 1%;
+}
+
+.example-config > div{
+    border-color: var(--other-background);
+    border-radius: 10px;
+    padding: 10px;
+    border-style: groove;
+}
+
+form > div > * {
+    margin: 10px;
 }
