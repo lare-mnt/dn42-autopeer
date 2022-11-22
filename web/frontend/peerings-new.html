@@ -3,7 +3,74 @@
 {% block content %}
 <script>
     function form_validate(form) {
+        console.log(form);
+        let msg = "<ul>";
+            
+        // check wireguard pubkey
+        let wg_key = document.getElementById("peer-wgkey").value;
+        if (wg_key.length != 44 || wg_key.slice(-1) != "="){
+            msg += "<li>invalid Wireguard key</li>";            
+        }
+        try {
+            window.atob(wg_key)
+        } catch (error) {
+            msg += "<li>invalid Wireguard key</li>";            
+        }
+            
+        // check endpoint
+        let endpoint_enabled = document.getElementById("peer-endpoint-enabled").checked;
+        let endpoint = document.getElementById("peer-endpoint").value;
+        if (endpoint_enabled) {
+            if (! endpoint) {
+                msg += "<li>endpoint enabled but non specified</li>";
+            } else if (isNaN(endpoint.split(":").at(-1))) {
+                msg += "<li>endpoint doesn't end with a (port)number</li>";
+            } else if (endpoint.split(":").length > 2 || endpoint.indexOf(".") == -1) {
+                msg += "<li>endpoint doesn't look like a ip address or fqdn</li>";
+            }
+        }
         
+        // check ip addresses
+        let ipv6ll_enabled = document.getElementById("peer-v6ll-enabled").checked;
+        let ipv4_enabled = document.getElementById("peer-v4-enabled").checked;
+        let ipv6_enabled = document.getElementById("peer-v6-enabled").checked;
+
+        let ipv6ll = document.getElementById("peer-v6ll").value;
+        let ipv4 = document.getElementById("peer-v4").value;
+        let ipv6 = document.getElementById("peer-v6").value;
+
+        if (!(ipv6ll_enabled || ipv4_enabled || ipv6_enabled)) {
+            msg += "<li>at least one ip type has to be enabled and specified</li>";
+        }
+
+        if (ipv6ll_enabled) {
+            if (! ipv6ll) {
+                msg += "<li>ipv6 LinkLocal enabled but non specified</li>";
+            } else if (!ipv6ll.startsWith("fe80::")) {
+                msg += "<li>ipv6 LinkLocal is no valid LinkLocal address</li>";
+            }
+        }
+        if (ipv4_enabled) {
+            if (! ipv4) {
+                msg += "<li>ipv4 enabled but non specified</li>";
+            } else if (!(ipv4.startsWith("172.2") || ipv4.startsWith("10.") || ipv4.startsWith("169.254")) ) {
+                msg += "<li>ipv4 is no valid dn42/neo/icvpn/LinkLocal address</li>";
+            }
+        }
+        if (ipv6_enabled) {
+            if (! ipv6) {
+                msg += "<li>ipv6 enabled but non specified</li>";
+            } else if (!ipv6.startsWith("fd")) {
+                msg += "<li>ipv6 is no valid fd00::/8 address</li>";
+            }
+        }
+        
+        // if an error occured (= there is a msg) show that msg
+        if (msg != "<ul>") {
+            document.getElementById("peer-invalid-note").innerHTML = msg+"</ul>";
+            return false;
+        }
+        return true
     }
 </script>
 
@@ -16,7 +83,8 @@
     </a>
     {% endfor %}
 </div>
-<form action="" method="post" class="flex" onsubmit="form_validate(this)">
+<form action="" method="post" class="flex" onsubmit="return form_validate(this)">
+    <div id="peer-invalid-note" style="background-color:red;"></div>
     <table>
         <tr>
             <td><label for="peer-asn">Your ASN</label></td>
@@ -26,7 +94,7 @@
         <tr>
             <td><label for="peer-wgkey">your Wireguard Publickey</label></td>
             <td></td>
-            <td><input type="text" name="peer-wgkey" id="peer-wgkey"></td>
+            <td><input type="text" name="peer-wgkey" id="peer-wgkey" maxlength="44" minlength="44" required></td>
         </tr>
         <tr>
             <td><label for="peer-endpoint">your Endpoint</label></td>
@@ -49,6 +117,7 @@
             <td><input type="text" name="peer-v6" id="peer-v6"></td>
         </tr>
     </table>
+    <input type="submit" value="submit">
 </form>
 <div class="example-config">
     

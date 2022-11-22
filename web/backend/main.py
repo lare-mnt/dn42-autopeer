@@ -138,6 +138,7 @@ def logout():
 
 @app.route("/login",methods=["GET","POST"])
 def login():
+    print(session)
     if request.method == "GET":
         session["return_url"] = request.args["return"] if "return" in request.args else ""
         
@@ -180,8 +181,8 @@ def peerings_delete():
 @app.route("/peerings/new", methods=["GET","POST"])
 @auth_required()
 def peerings_new():
+    print(session)
     if request.method == "GET":
-        print(session)
         if "node" in request.args and request.args["node"] in config["nodes"]:
             return render_template("peerings-new.html", config=config, selected_node=request.args["node"], peerings=peerings)
         else: 
@@ -192,6 +193,7 @@ def peerings_new():
 @app.route("/peerings", methods=["GET","POST","DELETE"])
 @auth_required()
 def peerings_view():
+    print(session)
     if request.method == "GET":
         if "node" in request.args and request.args["node"] in config["nodes"]:
             return render_template("peerings.html", config=config, selected_node=request.args["node"], peerings=peerings)
@@ -206,6 +208,7 @@ def peerings_view():
 
 @app.route("/")
 def index():
+    print(session)
     # print(config._config["nodes"])
     # for node in config["nodes"].values():
     #     print (node)
