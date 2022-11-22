@@ -72,6 +72,61 @@
         }
         return true
     }
+    
+    // update exaple config when changing values
+    function update_from_endpoint() {
+        let example_config_peer_port = document.getElementById("example-config-peer-port");
+        let endpoint_enabled = document.getElementById("peer-endpoint-enabled").checked;
+        let endpoint = document.getElementById("peer-endpoint").value;
+        if (endpoint_enabled && endpoint && endpoint.split(":").length >= 2) {
+            example_config_peer_port.innerHTML = endpoint.split(":").at(-1);
+            return
+        }
+        example_config_peer_port.innerHTML = '2{{config["ASN"][-4:]}}'
+    }
+    function update_from_v6ll() {
+        let example_config_ip = document.getElementById("example-config-ipv6ll");
+        let example_config_peer_ip = document.getElementById("example-config-peer-ipv6ll");
+        let ip_enabled = document.getElementById("peer-v6ll-enabled").checked;
+        let ip = document.getElementById("peer-v6ll").value;
+        if (ip_enabled) {
+            example_config_ip.style.display = "";
+            example_config_peer_ip.innerHTML = ip;
+        } else {
+            example_config_ip.style.display = "none";
+        }
+    }
+    function update_from_v4() {
+        let example_config_ip = document.getElementById("example-config-ipv4");
+        let example_config_peer_ip = document.getElementById("example-config-peer-ipv4");
+        let ip_enabled = document.getElementById("peer-v4-enabled").checked;
+        let ip = document.getElementById("peer-v4").value;
+        if (ip_enabled) {
+            example_config_ip.style.display = "";
+            example_config_peer_ip.innerHTML = ip;
+        } else {
+            example_config_ip.style.display = "none";
+        }
+    }
+    function update_from_v6() {
+        let example_config_ip = document.getElementById("example-config-ipv6");
+        let example_config_peer_ip = document.getElementById("example-config-peer-ipv6");
+        let ip_enabled = document.getElementById("peer-v6-enabled").checked;
+        let ip = document.getElementById("peer-v6").value;
+        if (ip_enabled) {
+            example_config_ip.style.display = "";
+            example_config_peer_ip.innerHTML = ip;
+        } else {
+            example_config_ip.style.display = "none";
+        }
+    }
+
+    function on_load() {
+        update_from_v6ll();
+        update_from_v4();
+        update_from_v6();
+    }
+    document.onload = on_load;
 </script>
 
 <div>
@@ -99,22 +154,22 @@
         <tr>
             <td><label for="peer-endpoint">your Endpoint</label></td>
             <td><input type="checkbox" name="peer-endpoint-enabled" id="peer-endpoint-enabled" checked></td>
-            <td><input type="text" name="peer-endpoint" id="peer-endpoint"></td>
+            <td><input type="text" name="peer-endpoint" id="peer-endpoint" onchange="return update_from_endpoint()"></td>
         </tr>
         <tr>
             <td><label for="peer-v6ll">your ipv6 LinkLocal</label></td>
-            <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" checked></td>
-            <td><input type="text" name="peer-v6ll" id="peer-v6ll"></td>
+            <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" onchange="return update_from_v6ll()" checked></td>
+            <td><input type="text" name="peer-v6ll" id="peer-v6ll" onchange="return update_from_v6ll()"></td>
         </tr>
         <tr>
             <td><label for="peer-v4">your ipv4</label></td>
-            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled"></td>
-            <td><input type="text" name="peer-v4" id="peer-v4"></td>
+            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled"onchange="return update_from_v4()"></td>
+            <td><input type="text" name="peer-v4" id="peer-v4"onchange="return update_from_v4()"></td>
         </tr>
         <tr>
             <td><label for="peer-v6">your ipv6</label></td>
-            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"></td>
-            <td><input type="text" name="peer-v6" id="peer-v6"></td>
+            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"onchange="return update_from_v6()"></td>
+            <td><input type="text" name="peer-v6" id="peer-v6"onchange="return update_from_v6()"></td>
         </tr>
     </table>
     <input type="submit" value="submit">
@@ -127,9 +182,9 @@
             [Interface] <br>
             PrivateKey = &ltyour private key&gt <br>
             ListenPort = <span id="example-config-peer-port">2{{config["ASN"][-4:]}}</span><br>
-            <span class="example-config-ipv4">PostUp = ip address add <span class="example-config-peer-ipv4">...</span>/32 peer <span class="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span>
-            <span class="example-config-ipv6">PostUp = ip address add <span class="example-config-peer-ipv6">...</span>/128 peer <span class="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span>
-            <span class="example-config-ipv6ll">PostUp = ip address add <span class="example-config-peer-ipv6ll">...</span>/128 peer <span class="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span><br></span>
+            <span id="example-config-ipv4">PostUp = ip address add <span id="example-config-peer-ipv4">...</span>/32 peer <span id="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span>
+            <span id="example-config-ipv6">PostUp = ip address add <span id="example-config-peer-ipv6">...</span>/128 peer <span id="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span>
+            <span id="example-config-ipv6ll">PostUp = ip address add <span id="example-config-peer-ipv6ll">...</span>/128 peer <span id="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span><br></span>
             Table = off <br>
             <br>
             [Peer] <br>
@@ -149,5 +204,8 @@
         </code>
     </div>
 </div>
+<script>
+    document.onload()
+</script>
 
 {% endblock %}
