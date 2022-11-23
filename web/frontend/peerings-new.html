@@ -25,7 +25,7 @@
                 msg += "<li>endpoint enabled but non specified</li>";
             } else if (isNaN(endpoint.split(":").at(-1))) {
                 msg += "<li>endpoint doesn't end with a (port)number</li>";
-            } else if (endpoint.split(":").length > 2 || endpoint.indexOf(".") == -1) {
+            } else if (endpoint.split(":").length < 2 && endpoint.indexOf(".") == -1) {
                 msg += "<li>endpoint doesn't look like a ip address or fqdn</li>";
             }
         }
@@ -139,7 +139,7 @@
     {% endfor %}
 </div>
 <form action="" method="post" class="flex" onsubmit="return form_validate(this)">
-    <div id="peer-invalid-note" style="background-color:red;"></div>
+    <div id="peer-invalid-note" style="background-color:red;">{% if msg %}{{msg}}{%endif%}</div>
     <table>
         <tr>
             <td><label for="peer-asn">Your ASN</label></td>
