@@ -128,9 +128,15 @@ def kioubit_auth():
     if success:
         session["user-data"] = msg
         session["login"] = msg['mnt']
-        return redirect(session["return_url"])
+        try:
+            return redirect(session["return_url"])
+        except KeyError:
+            return redirect(f"{config['base-dir']}peerings")
     else:
-        return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
+        try:
+            return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
+        except KeyError:
+            return render_template("login.html", session=session,config=config,return_addr=f"{config['base-dir']}peerings", msg=msg)
 
 @app.route("/logout")
 def logout():
