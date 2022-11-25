@@ -2,7 +2,7 @@
 
 from flask import Flask, Response, redirect, render_template, request, session, abort
 import werkzeug.exceptions as werkzeug_exceptions
-import json, os, base64, logging
+import json, os, base64, logging, random
 from functools import wraps
 from ipaddress import ip_address, ip_network
 import kioubit_verify
@@ -50,51 +50,79 @@ class Config (dict):
             self._config["peering-data"] = "./peerings"
         logging.info(self._config)
 
-class PeeringManager(dict):
+class PeeringManager:
 
     def __init__(self, peering_dir):
         self._peering_dir = peering_dir
 
         self._load_peerings()
-        self.keys = self._peerings
 
-    def __contains__(self, o):
-        return self._peerings.__contains__(o)
-
-    def __getitem__(self, k):
-        return self._peerings[k]
-    
-    def __setitem__(self, k, v):
-        pass
-    def __delitem__(self, v):
-        pass
-    
     def _load_peerings(self):
         if not os.path.exists(self._peering_dir):
             os.mkdir(self._peering_dir)
         if not os.path.exists(f"{self._peering_dir}/peerings.json"):
             with open(f"{self._peering_dir}/peerings.json", "x") as p: 
-                json.dump([], p)
-        with open(f"{self._peering_dir}/peerings.json","r") as p:
-            self._peerings = json.load(p)
-        self.peerings = {}
-        missing_peerings = False
-        for peering in self._peerings:
-            if os.path.exists(f"{self._peering_dir}/{peering}.json"):
-                with open(f"{self._peering_dir}/{peering}.json") as peer_cfg:
-                    self.peerings[peering] = json.load(peer_cfg)
-            else:
-                logging.warning(f"peering with id {peering} doesn't exist. removing reference in `{self._peering_dir}/peerings.json`")
-                self._peerings.remove(peering)
-                missing_peerings = True
-        if missing_peerings:
-            with open(f"{self._peering_dir}/peerings.json","w") as p:
-                json.dump(self._peerings, p, indent=4)
+                json.dump({"mnter":{},"asn":{}}, p)
+        try:       
+            with open(f"{self._peering_dir}/peerings.json","r") as p:
+                self.peerings = json.load(p)
+        except json.decoder.JSONDecodeError:
+            with open(f"{self._peering_dir}/peerings.json", "w") as p: 
+                json.dump({"mnter":{},"asn":{}}, p)
+            with open(f"{self._peering_dir}/peerings.json","r") as p:
+                self.peerings = json.load(p)
+
+        # self.peerings = {}
+        # missing_peerings = False
+        # for peering in self._peerings:
+        #     if os.path.exists(f"{self._peering_dir}/{peering}.json"):
+        #         with open(f"{self._peering_dir}/{peering}.json") as peer_cfg:
+        #             self.peerings[peering] = json.load(peer_cfg)
+        #     else:
+        #         logging.warning(f"peering with id {peering} doesn't exist. removing reference in `{self._peering_dir}/peerings.json`")
+        #         self._peerings.remove(peering)
+        #         missing_peerings = True
+        # if missing_peerings:
+        #     with open(f"{self._peering_dir}/peerings.json","w") as p:
+        #         json.dump(self._peerings, p, indent=4)
+    def _save_peerings(self):
+        with open(f"{self._peering_dir}/peerings.json", "w") as p:
+            json.dump(self.peerings, p, indent=4)
 
     def get_peerings_by_mnt(self, mnt):
-        return [{}]
-        raise NotImplementedError()
-       
+        # print(self.peerings)
+        try:
+            out = []
+            for asn in self.peerings["mnter"][mnt]:
+                try:
+                    for peering in self.peerings["asn"][asn]:
+                        out.append(peering)
+                except KeyError as e:
+                    pass
+            return out
+        except KeyError:
+            return {}
+
+    def add_peering(self, mnt, asn, node, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None):
+        try:
+            if not asn in self.peerings["mnter"][mnt]:
+                self.peerings[mnt].append(asn)
+        except KeyError:
+            self.peerings["mnter"][mnt] = [asn]
+        try:
+            if not asn in self.peerings["asn"]:
+                self.peerings["asn"][asn] = []
+        except KeyError:
+            self.peerings["asn"][asn] = []
+        
+        # deny more than one peering per ASN to one node 
+        for peering in self.peerings["asn"][asn]:
+            if peering["node"] == node: return False
+        self.peerings["asn"][asn].append({"MNT":mnt,"ASN":asn, "node": node, "wg_key":wg_key, "endpoint": endpoint,"ipv6ll":ipv6ll,"ipv4":ipv4,"ipv6":ipv6})
+
+        self._save_peerings()
+        return True
+        
 
 config = Config()
 peerings = PeeringManager(config["peering-dir"])
@@ -205,6 +233,7 @@ def peerings_new():
         
         ## check if all required (and enabled) options are specified
         try:
+            new_peering["peer-asn"] = session["user-data"]["asn"]
             new_peering["peer-wgkey"] = request.form["peer-wgkey"]
             if  request.form["peer-endpoint-enabled"] == "on":
                 new_peering["peer-endpoint"] = request.form["peer-endpoint"]
@@ -286,8 +315,10 @@ def peerings_new():
         except ValueError:
             return render_template("peerings-new.html",  session=session,config=config, peerings=peerings, msg="invalid ip address(es) supplied"), 400
 
+        if not peerings.add_peering(session["user-data"]["mnt"], session["user-data"]["asn"], request.args["node"], new_peering["peer-wgkey"], new_peering["peer-endpoint"], new_peering["peer-v6ll"], new_peering["peer-v4"], new_peering["peer-v6"]):
+            return render_template("peerings-new.html",  session=session,config=config, peerings=peerings, msg="this ASN already has a peering with the requested node"), 400
 
-
+        return redirect(f"{config['base-dir']}peerings")
         return """<div>creating peerings is not (yet) implemented</div><div><a href="../">return</a>"""
         return f"{request.method} /peerings/new {str(request.args)}{str(request.form)}"
 @app.route("/peerings", methods=["GET","POST","DELETE"])

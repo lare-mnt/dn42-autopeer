@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{config['base-dir']}}static/style.css">
 </head>
 <body>
-    <header class="flex flex-row"><div></div><a href="{{config['base-dir']}}">{{config["MNT"]}} Autopeering</a>{% if "login" in session %}<a href="{{config['base-dir']}}logout">logout</a>{% else %} <a href="{{config['base-dir']}}login?return=/peerings">login</a>{%endif%}</header>
+    <header class="flex flex-row"><div></div><a href="{{config['base-dir']}}">{{config["MNT"]}} Autopeering</a>{% if "login" in session %} <div><a href="{{config['base-dir']}}peerings">manage</a> <a href="{{config['base-dir']}}logout">logout</a></div>{% else %} <a href="{{config['base-dir']}}login?return=/peerings">login</a>{%endif%}</header>
     <div class="content flex">
         {% block content %}
         {% endblock %}
