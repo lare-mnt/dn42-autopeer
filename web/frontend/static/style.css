@@ -72,3 +72,48 @@ footer.flex {
 form > div > * {
     margin: 10px;
 }
+
+.peering {
+    border-color: var(--other-background);
+    border-radius: 10px;
+    padding: 10px;
+    border-style: inset;
+    display: grid;
+    grid-auto-flow: column;
+    flex-direction: row;
+    width: 100%;
+}
+.peering > div {
+    display: flex;
+    flex-direction: column;
+}
+.peering > div > * {
+    padding: 10px;
+}
+
+button {
+    background-color: #00000020;
+    border-color: var(--text-color);
+    border-width: 5px;
+    padding: 10px;
+}
+
+.peering>* {
+    width:auto;
+    align-items: center;
+}
+
+.peering-edit {
+    border-color: lightblue;
+}
+
+.peering-edit:hover {
+    background-color: #87cefaaa;
+}
+
+.peering-delete {
+    border-color: darkred;
+}
+.peering-delete:hover {
+    background-color: #ff0000aa;
+}

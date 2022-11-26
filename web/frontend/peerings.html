@@ -4,9 +4,35 @@
 <div>
     <a href="peerings/new"><button>add new</button></a>
 </div>
-<div>
+<div class="flex flex-row">
 {% for peering in peerings.get_peerings_by_mnt(session["login"]) %}
-    {{peering}} <br>
+    <div class="peering">
+        <div>
+            <div>Node: {{peering["node"]}}</div>
+        </div>
+        <div>
+            <table>
+                <tr><td>ASN:</td><td>{{peering["ASN"]}}</td></tr> 
+                <tr><td>WG-PublicKey:</td><td>{{peering["wg_key"][:8]}}...</td></tr> 
+            </table>
+        </div>
+        <div>
+            <table>
+                {% if peering["ipv6ll"] %}<tr><td>ipv6 linklocal:</td><td>{{peering["ipv6ll"]}}</td></tr>{% endif %}
+                {% if peering["ipv4"] %}<tr><td>ipv4:</td><td>{{peering["ipv4"]}}</td></tr>{% endif %}
+                {% if peering["ipv6"] %}<tr><td>ipv6:</td><td>{{peering["ipv6"]}}</td></tr>{% endif %}
+            </table>
+        </div>
+        <!-- <div>{{peering}}</div> -->
+        <div>
+            <a href="peerings/edit?node={{peering['node']}}&asn={{peering['ASN']}}">
+                <button class="peering-edit">edit</button>
+            </a>
+            <a href="peerings/delete?node={{peering['node']}}&asn={{peering['ASN']}}">
+                <button class="peering-delete">delete</button>
+            </a>
+        </div>
+    </div>
 {% endfor %}
 </div>
 

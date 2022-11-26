@@ -147,6 +147,11 @@
             <td><input type="text" name="peer-asn" id="peer-asn" disabled="disabled" value="{{session['user-data']['asn']}}"></td>
         </tr>
         <tr>
+            <td><h4>Wireguard</h4></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
             <td><label for="peer-wgkey">your Wireguard Publickey</label></td>
             <td></td>
             <td><input type="text" name="peer-wgkey" id="peer-wgkey" maxlength="44" minlength="44" required></td>
@@ -171,7 +176,23 @@
             <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"onchange="return update_from_v6()"></td>
             <td><input type="text" name="peer-v6" id="peer-v6"onchange="return update_from_v6()"></td>
         </tr>
+        <tr>
+            <td><h4>BGP</h4></td>
+            <td></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>MultiProtocol</td>
+            <td><input type="checkbox" name="bgp-multi-protocol" id="bgp-multi-protocol" onchange="return update_from_mpbgp()" checked></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td>extended next hop</td>
+            <td><input type="checkbox" name="bgp-extended-next-hop" id="bgp-extended-next-hop" onchange="return update_from_enh()" checked></td>
+            <td></td>
+        </tr>
     </table>
+
     <input type="submit" value="submit">
 </form>
 <div class="example-config">
