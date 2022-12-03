@@ -1,7 +1,8 @@
 :root {
     --bg-color: #aaa;
-    --text-color: black;
     --other-background: #444;
+    --text-color: black;
+    --text-color-dark: white;
     /* --accent-color: ; */
 }
 
@@ -98,7 +99,10 @@ button {
     border-width: 5px;
     padding: 10px;
 }
-
+button.button-selected{
+    background-color: var(--other-background);
+    color: var(--text-color-dark);
+}
 .peering>* {
     width:auto;
     align-items: center;

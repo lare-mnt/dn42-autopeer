@@ -101,11 +101,14 @@ class PeeringManager:
         except KeyError:
             return {}
 
-    def add_peering(self, mnt, asn, node, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None):
+    def add_peering(self, mnt, asn, node, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
+        # check if this MNT already has a/this asn
         try:
             if not asn in self.peerings["mnter"][mnt]:
+                # ... and add it if it hasn't
                 self.peerings[mnt].append(asn)
         except KeyError:
+            # ... and cerate it if it doesn't have any yet
             self.peerings["mnter"][mnt] = [asn]
         try:
             if not asn in self.peerings["asn"]:
@@ -116,8 +119,32 @@ class PeeringManager:
         # deny more than one peering per ASN to one node 
         for peering in self.peerings["asn"][asn]:
             if peering["node"] == node: return False
-        self.peerings["asn"][asn].append({"MNT":mnt,"ASN":asn, "node": node, "wg_key":wg_key, "endpoint": endpoint,"ipv6ll":ipv6ll,"ipv4":ipv4,"ipv6":ipv6})
+        
+        self.peerings["asn"][asn].append({"MNT":mnt,"ASN":asn, "node": node, "wg_key":wg_key, "endpoint": endpoint,"ipv6ll":ipv6ll,"ipv4":ipv4,"ipv6":ipv6, "bgp_mp":bgp_mp, "bgp_enh":bgp_enh})
 
+        self._save_peerings()
+        return True
+    def update_peering(self, mnt, asn, node, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
+        # check if this MNT already has a/this asn
+        try:
+            if not asn in self.peerings["mnter"][mnt]:
+                # ... and add it if it hasn't
+                self.peerings[mnt].append(asn)
+        except KeyError:
+            # ... and cerate it if it doesn't have any yet
+            self.peerings["mnter"][mnt] = [asn]
+        try:
+            if not asn in self.peerings["asn"]:
+                return False
+        except KeyError:
+            return False
+        
+        success = False
+        for pNr in range(len(self.peerings["asn"][asn])):
+            if self.peerings["asn"][asn][pNr]["node"] == node:
+                self.peerings["asn"][asn][pNr] = {"MNT":mnt,"ASN":asn, "node": node, "wg_key":wg_key, "endpoint": endpoint,"ipv6ll":ipv6ll,"ipv4":ipv4,"ipv6":ipv6, "bgp_mp":bgp_mp, "bgp_enh":bgp_enh}
+                success = True
+        if not success: return False
         self._save_peerings()
         return True
         
@@ -160,7 +187,9 @@ def check_peering_data(form):
         else:
             new_peering["peer-v6"] = None
         new_peering["bgp-mp"] = form["bgp-multi-protocol"] if "bgp-multi-protocol" in form else "off"
+        new_peering["bgp-mp"] = True if new_peering["bgp-mp"] else False
         new_peering["bgp-enh"] = form["bgp-extended-next-hop"] if "bgp-extended-next-hop" in form else "off"
+        new_peering["bgp-enh"] = True if new_peering["bgp-enh"] else False
         #new_peering[""] = form["peer-wgkey"]
     except ValueError as e:
         print(f"error: {e.args}")
@@ -332,12 +361,33 @@ def peerings_delete():
 def peerings_edit():
     print(session)
     if request.method == "GET":
+        mnt_peerings = peerings.get_peerings_by_mnt(session["login"])
+        # print(mnt_peerings)
         if "node" in request.args and request.args["node"] in config["nodes"]:
-            return render_template("peerings-new.html", config=config, selected_node=request.args["node"], peerings=peerings)
+            selected_peering = None
+            for p in mnt_peerings:
+                if p["node"] == request.args["node"] and p["ASN"] == request.args["asn"]:
+                    selected_peering = p
+                    print(p)
+                    break
+            return render_template("peerings-edit.html", session=session, config=config, mnt_peerings=mnt_peerings, selected_peering=selected_peering)
         else: 
-            return render_template("peerings-new.html",  session=session,config=config, peerings=peerings)
+            return render_template("peerings-edit.html", session=session, config=config, mnt_peerings=mnt_peerings, selected_peering=None)
     elif request.method == "POST":
+        print(request.args)
+        print(request.form)
+        if not "node" in request.args or not request.args["node"]:
+            return render_template("peerings-edit.html",  session=session,config=config, peerings=peerings, msg="no node specified, please click one of the buttons above")
 
+        peering_valid, peering_or_msg = check_peering_data(request.form)
+        print(peering_valid)
+        print(peering_or_msg)
+        if not peering_valid:
+            return render_template("peerings-edit.html",  session=session,config=config, peerings=peerings, msg=peering_or_msg), 400
+        if not peerings.update_peering(session["user-data"]["mnt"], session["user-data"]["asn"], request.args["node"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
+            return render_template("peerings-edit.html",  session=session,config=config, peerings=peerings, msg="such a peering doesn't exist(yet)"), 400
+
+        return redirect(f"{config['base-dir']}peerings")
         return f"{request.method} /peerings/edit?{str(request.args)}{str(request.form)}"
 @app.route("/peerings/new", methods=["GET","POST"])
 @auth_required()
@@ -358,12 +408,11 @@ def peerings_new():
 
         if not peering_valid:
             return render_template("peerings-new.html",  session=session,config=config, peerings=peerings, msg=peering_or_msg), 400
-        if not peerings.add_peering(session["user-data"]["mnt"], session["user-data"]["asn"], request.args["node"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"]):
+        if not peerings.add_peering(session["user-data"]["mnt"], session["user-data"]["asn"], request.args["node"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
             return render_template("peerings-new.html",  session=session,config=config, peerings=peerings, msg="this ASN already has a peering with the requested node"), 400
 
         return redirect(f"{config['base-dir']}peerings")
-        return """<div>creating peerings is not (yet) implemented</div><div><a href="../">return</a>"""
-        return f"{request.method} /peerings/new {str(request.args)}{str(request.form)}"
+
 @app.route("/peerings", methods=["GET","POST","DELETE"])
 @auth_required()
 def peerings_view():

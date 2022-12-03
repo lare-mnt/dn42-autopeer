@@ -5,8 +5,9 @@
       "type": "python",
       "request": "launch",
       "program": "${file}",
+      "cwd": "${workspaceFolder}/web/",
       "console": "integratedTerminal",
-      "justMyCode": false
+      "justMyCode": true
     }
   ]
 }
