@@ -62,7 +62,7 @@ footer.flex {
     padding: 1%;
 }
 
-.example-config > div{
+.example-config > pre{
     border-color: var(--other-background);
     border-radius: 10px;
     padding: 10px;
@@ -82,6 +82,7 @@ form > div > * {
     grid-auto-flow: column;
     flex-direction: row;
     width: 100%;
+    margin: 10px;
 }
 .peering > div {
     display: flex;

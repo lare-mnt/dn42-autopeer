@@ -65,6 +65,18 @@
             }
         }
         
+        // check BGP cap
+        bgp_mp = document.getElementById("bgp-multi-protocol").checked;
+        bgp_enh = document.getElementById("bgp-extended-next-hop").checked;
+        if (! bgp_mp) {
+            if ( ! (ipv4_enabled && (ipv6_enabled||ipv6ll_enabled))) {
+                msg += "<li>both a ipv4 and ipv6 address must be spedified when not having MulitiProtocol</li>"
+            }
+            if (bgp_enh) {
+                msg += "<li>extended next hop is not supported without MultiProtocol</li>"
+            }
+        }
+
         // if an error occured (= there is a msg) show that msg
         if (msg != "<ul>") {
             document.getElementById("peer-invalid-note").innerHTML = msg+"</ul>";
@@ -120,11 +132,42 @@
             example_config_ip.style.display = "none";
         }
     }
+    function update_from_mpbgp() {
+        let example_config_bird1 = document.getElementById("example-config-bird1");
+        let example_config_bird2 = document.getElementById("example-config-bird2");
+        let mpbgp_enabled = document.getElementById("bgp-multi-protocol").checked;
+        let extended_next_hop = document.getElementById("bgp-extended-next-hop");
+        if (mpbgp_enabled) {
+            example_config_bird1.style.display = "none";
+            example_config_bird2.style.display = "";
+            extended_next_hop.disabled = false;
+        } else {
+            example_config_bird1.style.display = "";
+            example_config_bird2.style.display = "none";
+            extended_next_hop.checked = false;
+            extended_next_hop.disabled = true;
+            
+        }
+    }
+    function update_from_enh() {
+        let example_config_bird2_enh4 = document.getElementById("example-config-bird2-enh4");
+        let example_config_bird2_enh6 = document.getElementById("example-config-bird2-enh6");
+        let enh_anabled = document.getElementById("bgp-extended-next-hop").checked;
+        if (enh_anabled) {
+            example_config_bird2_enh4.innerHTML = "on";
+            example_config_bird2_enh6.innerHTML = "on";
+        } else {
+            example_config_bird2_enh4.innerHTML = "off";
+            example_config_bird2_enh6.innerHTML = "off";
+        }
+    }
 
     function on_load() {
         update_from_v6ll();
         update_from_v4();
         update_from_v6();
+        update_from_mpbgp();
+        update_from_enh();
     }
     document.onload = on_load;
 </script>
@@ -198,35 +241,53 @@
 <div class="example-config">
     
     <p>wg-quick:</p>
-    <div id="node-wireguard">
-        <code>
-            [Interface] <br>
-            PrivateKey = &ltyour private key&gt <br>
-            ListenPort = <span id="example-config-peer-port">2{{config["ASN"][-4:]}}</span><br>
-            <span id="example-config-ipv4">PostUp = ip address add <span id="example-config-peer-ipv4">...</span>/32 peer <span id="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span>
-            <span id="example-config-ipv6">PostUp = ip address add <span id="example-config-peer-ipv6">...</span>/128 peer <span id="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span>
-            <span id="example-config-ipv6ll">PostUp = ip address add <span id="example-config-peer-ipv6ll">...</span>/128 peer <span id="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span><br></span>
-            Table = off <br>
-            <br>
-            [Peer] <br>
-            PublicKey = <span class="exmple-config-node-pubkey">{% if selected_node %}{{config["nodes"][selected_node]["wg-key"]}}{% else %} ... {% endif %}</span><br>
-            Endpoint = <span class="exmple-config-node-endpoint">{% if selected_node %}{{config["nodes"][selected_node]["endpoint"]}}{% else %} ... {% endif %}</span>:<span class="example-config-node-port">{% if selected_node %}{% if session["user-data"]["asn"].startswith("AS424242") %}5{{session["user-data"]["asn"][-4:]}}{% else %} ... {% endif %}{% else %} ... {% endif %}</span><br>
-            AllowedIPs = <span class="example-config-node-v6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span>,172.20.0.0/14,172.31.0.0/16,10.0.0.0/8,fd00::/8 <br>  
-        </code>
-    </div>
+    <pre id="node-wireguard">
+[Interface] <br>
+PrivateKey = &ltyour private key&gt
+ListenPort = <span id="example-config-peer-port">2{{config["ASN"][-4:]}}</span>
+<span id="example-config-ipv4">PostUp = ip address add <span id="example-config-peer-ipv4">...</span>/32 peer <span id="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6">PostUp = ip address add <span id="example-config-peer-ipv6">...</span>/128 peer <span id="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6ll">PostUp = ip address add <span id="example-config-peer-ipv6ll">...</span>/128 peer <span id="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span></span>
+Table = off
+
+[Peer]
+PublicKey = <span id="exmple-config-node-pubkey">{% if selected_node %}{{config["nodes"][selected_node]["wg-key"]}}{% else %} ... {% endif %}</span>
+Endpoint = <span id="exmple-config-node-endpoint">{% if selected_node %}{{config["nodes"][selected_node]["endpoint"]}}{% else %} ... {% endif %}</span>:<span id="example-config-node-port">{% if selected_node %}{% if session["user-data"]["asn"].startswith("AS424242") %}5{{session["user-data"]["asn"][-4:]}}{% else %} ... {% endif %}{% else %} ... {% endif %}</span>
+AllowedIPs = <span id="example-config-node-v6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span>,172.20.0.0/14,172.31.0.0/16,10.0.0.0/8,fd00::/8
+    </pre>
     
-    <p>bird(2) config:</p>
-    <div id="peer-bird">
-        <code id="example-config-bird">
-            protocol bgp dn42_{{config["MNT"][:-4].lower()}} from dnpeers { <br>
-            &#9;neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %} as {{config["ASN"]}};<br>
-            &#9;interface "dn42_{{config["MNT"][:-4].lower()}}";<br>
-            } <br>
-        </code>
+    <p>bird config:</p>
+    <pre id="example-config-bird2">
+protocol bgp dn42_{{config["MNT"][:-4].lower()}} from dnpeers {
+    neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %} as {{config["ASN"]}};
+    interface "dn42_{{config["MNT"][:-4].lower()}}";
+    ipv4 {
+        extended next hop <span id="example-config-bird2-enh4">on</span>;
+    };
+    ipv6 {
+        extended next hop <span id="example-config-bird2-enh6">on</span>;
+    };
+}
+    </pre>
+
+    <pre id="example-config-bird1">
+protocol bgp dn42_{{config["MNT"][:-4].lower()}}_v4 from dnpeers {
+    neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %} as {{config["ASN"]}};
+    interface "dn42_{{config["MNT"][:-4].lower()}}";
+    ipv4 {
+        
+    };
+protocol bgp dn42_{{config["MNT"][:-4].lower()}}_v6 from dnpeers {
+    <span id="example-bird1-v6ll">neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %} as {{config["ASN"]}};</span> 
+    <span id="example-bird1-v6">neighbor {% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %} as {{config["ASN"]}};</span>
+    interface "dn42_{{config["MNT"][:-4].lower()}}";
+    ipv6 {
+        
+    };
+}
+        </pre>
     </div>
 </div>
 <script>
-    document.onload()
+    document.onload();
 </script>
 
 {% endblock %}
