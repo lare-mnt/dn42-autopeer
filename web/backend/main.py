@@ -4,7 +4,7 @@ from flask import Flask, Response, redirect, render_template, request, session, 
 import werkzeug.exceptions as werkzeug_exceptions
 import json, os, base64, logging, random
 from functools import wraps
-from ipaddress import ip_address, ip_network
+from ipaddress import ip_address, ip_network, IPv4Network, IPv6Network
 import kioubit_verify
 
 app = Flask(__name__)
@@ -327,21 +327,30 @@ def login():
                 msg = "what is the answer for everything?"
                 return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
             mnt = request.form["mnt"]
+            if not mnt.upper().endswith("-MNT"): raise ValueError
             asn = request.form["asn"]
             asn = asn[2:] if asn[:2].lower() == "as" else asn
+            int(asn)
             if "allowed4" in request.form:
                 allowed4 = request.form["allowed4"]
-                # allowed4 = allowed4.split(",") if "," in allowed4 else allowed4
+                v4_ranges = allowed4.split(",") if "," in allowed4 else [allowed4]
+                for v4_range in v4_ranges:
+                    IPv4Network(v4_range)
             else:
                 allowed4 = None
             if "allowed6" in request.form:
                 allowed6 = request.form["allowed6"]
-                # allowed6 = allowed6.split(",") if "," in allowed6 else allowed6
+                v6_ranges = allowed6.split(",") if "," in allowed6 else [allowed6]
+                for v6_range in v6_ranges:
+                    IPv6Network(v6_range)
             else:
                 allowed6 = None
             session["user-data"] = {'asn':asn,'allowed4': allowed4, 'allowed6': allowed6,'mnt':mnt, 'authtype': "debug"}
             session["login"] = mnt
             return redirect(session["return_url"])
+        except ValueError:
+            msg = "at least one of the values provided is wrong/invalid"
+            return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
         except KeyError:
             msg = "not all required field were specified"
             return render_template("login.html", session=session,config=config,return_addr=session["return_url"], msg=msg)
