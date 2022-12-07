@@ -1,22 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{config["MNT"]}} Autopeering</title>
-    <link rel="stylesheet" href="{{config['base-dir']}}static/style.css">
-</head>
-<body>
-    <header class="flex flex-row"><div></div><a href="{{config['base-dir']}}">{{config["MNT"]}} Autopeering</a>{% if "login" in session %} <div><a href="{{config['base-dir']}}peerings">manage</a> <a href="{{config['base-dir']}}logout">logout</a></div>{% else %} <a href="{{config['base-dir']}}login?return=/peerings">login</a>{%endif%}</header>
-    <div class="content flex">
-        {% block content %}
-        {% endblock %}
-    </div>
+    <link rel="stylesheet" href="{{config['base-dir']}}static/style.css" />
+  </head>
+  <body>
+    <header class="flex flex-row">
+      <div></div>
+      <a href="{{config['base-dir']}}">{{config["MNT"]}} Autopeering</a>{% if
+      "login" in session %}
+      <div>
+        <a href="{{config['base-dir']}}peerings">manage</a>
+        <a href="{{config['base-dir']}}logout">logout</a>
+      </div>
+      {% else %}
+      <a href="{{config['base-dir']}}login?return=/peerings">login</a>{%endif%}
+    </header>
+    <div class="content flex">{% block content %} {% endblock %}</div>
     <footer class="flex">
-        <div></div>
-        <div></div>
-        <div> &#127279; LARE-MNT</div>
+      <div></div>
+      <div></div>
+      <div>&#127279; LARE-MNT</div>
     </footer>
-</body>
+  </body>
 </html>

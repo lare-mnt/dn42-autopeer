@@ -17,6 +17,7 @@ header {
     background-color: var(--other-background);
     height: 50px;
 }
+
 a {
     color: var(--text-color);
 }
@@ -27,6 +28,7 @@ a {
     margin: auto;
     padding-bottom: 50px;
 }
+
 .content>* {
     padding: 5%;
 }
@@ -35,6 +37,7 @@ a {
     display: flex;
     flex-direction: column;
 }
+
 .flex-row {
     flex-direction: row;
 }
@@ -54,6 +57,7 @@ footer {
     height: 40px;
     background: var(--other-background);
 }
+
 footer.flex {
     flex-direction: row;
 }
@@ -63,14 +67,14 @@ footer.flex {
     padding: 1%;
 }
 
-.example-config > pre{
+.example-config>pre {
     border-color: var(--other-background);
     border-radius: 10px;
     padding: 10px;
     border-style: groove;
 }
 
-form > div > * {
+form>div>* {
     margin: 10px;
 }
 
@@ -85,40 +89,59 @@ form > div > * {
     width: 100%;
     margin: 10px;
 }
-.peering > div {
+
+.peering>div {
     display: flex;
     flex-direction: column;
 }
-.peering > div > * {
+
+.peering>div>* {
     padding: 10px;
 }
 
-button {
+button,
+input[type=button] {
     background-color: #00000020;
     border-color: var(--text-color);
     border-width: 5px;
     padding: 10px;
 }
-button.button-selected{
+
+button.button-selected,
+input[type=button].button-selected {
     background-color: var(--other-background);
     color: var(--text-color-dark);
 }
+
 .peering>* {
-    width:auto;
+    width: auto;
     align-items: center;
 }
 
-.peering-edit {
+.button-blue {
     border-color: lightblue;
 }
 
-.peering-edit:hover {
+.button-blue:hover {
     background-color: #87cefaaa;
 }
 
-.peering-delete {
+.button-red {
     border-color: darkred;
 }
-.peering-delete:hover {
+
+.button-red:hover {
     background-color: #ff0000aa;
+}
+
+.button-green {
+    border-color: lightgreen;
+}
+
+.button-green:hover {
+    background-color: greenyellow;
+}
+
+.default-border-color {
+    border-color: inherit;
 }

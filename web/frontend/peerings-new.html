@@ -182,7 +182,7 @@
     {% endfor %}
 </div>
 <form action="" method="post" class="flex" onsubmit="return form_validate(this)">
-    <div id="peer-invalid-note" style="background-color:red;">{% if msg %}{{msg}}{%endif%}</div>
+    <div id="peer-invalid-note" style="background-color:red;">{% if msg %}{{msg}}{%elif not selected_node%}please select one of the nodes above{%endif%}</div>
     <table>
         <tr>
             <td><label for="peer-asn">Your ASN</label></td>
@@ -283,8 +283,8 @@ protocol bgp dn42_{{config["MNT"][:-4].lower()}}_v6 from dnpeers {
         
     };
 }
-        </pre>
-    </div>
+    </pre>
+    
 </div>
 <script>
     document.onload();

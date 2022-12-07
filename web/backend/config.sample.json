@@ -1,29 +1,29 @@
 {
-    "nodes": {
-        "<nodename>": {
-            "endpoint": "<clearnet-fqdn/ip-address>", //optional, recommended, default: None/null
-            "api-con": "http://<node-(internal)-ip/hostname>:<port>/", // required
-            "#comment": "/* from here: data to be displayed on the webinterface */",
-            "country": "...", // Countrycode: 2 capital letters
-            "city": "...",
-            "wg-key": "...=", // pubkey of node; required
-            "internal-v4": "172.2x.xxx.xxx", //at least one ipv{4,6} addr required
-            "internal-v6": "fdxx:...",
-            "internal-v4ll": "169.254.xxx.xxx",
-            "internal-v6ll": "fe80::...",
-            "note": "...", //optional, special precausions, like only supporting a specific amount of peers/ipv{4,6} in clearnet, etc
-            "capacity": 100 //optional, default: -1 (infinite); estimated capacity of that node (i.e. OPENVZ(7) only has userspace WG (which consumes memory for every interface created))
-        }
-    },
-    "MNT": "YOUR-MNT", // your MNT tag
-    "ASN": "424242000", //Your ASN (used to generate default peer ListenPorts)
-    "listen": "0.0.0.0",
-    "port": 8042, 
-    "domain": "example.org", // domain to use for kioubit verification service
-    "base-dir": "/", //optional:directury for which it is reachable (if behind some sort of reverse proxy) default "/"
-    "peerings": "/path/to/peering-config.json", // optional; default "$PWD/peerings", directory to save existing peerings to
-    "production": true, //optional, default true; 
-    "debug-mode": false, // optional; whethet to enable debugging; default false
-    "flask-secret-key": "<secret-please-replace>", // secret key for session cookies
-    "flask-template-dir": "../frontend/" // optional; default "../frontend"
+  "nodes": {
+    "<nodename>": {
+      "endpoint": "<clearnet-fqdn/ip-address>", //optional, recommended, default: None/null
+      "api-con": "http://<node-(internal)-ip/hostname>:<port>/", // required
+      "#comment": "/* from here: data to be displayed on the webinterface */",
+      "country": "...", // Countrycode: 2 capital letters
+      "city": "...",
+      "wg-key": "...=", // pubkey of node; required
+      "internal-v4": "172.2x.xxx.xxx", //at least one ipv{4,6} addr required
+      "internal-v6": "fdxx:...",
+      "internal-v4ll": "169.254.xxx.xxx",
+      "internal-v6ll": "fe80::...",
+      "note": "...", //optional, special precausions, like only supporting a specific amount of peers/ipv{4,6} in clearnet, etc
+      "capacity": 100 //optional, default: -1 (infinite); estimated capacity of that node (i.e. OPENVZ(7) only has userspace WG (which consumes memory for every interface created))
+    }
+  },
+  "MNT": "YOUR-MNT", // your MNT tag
+  "ASN": "424242000", //Your ASN (used to generate default peer ListenPorts)
+  "listen": "0.0.0.0",
+  "port": 8042,
+  "domain": "example.org", // domain to use for kioubit verification service
+  "base-dir": "/", //optional:directury for which it is reachable (if behind some sort of reverse proxy) default "/"
+  "peerings": "/path/to/peering-config.json", // optional; default "$PWD/peerings", directory to save existing peerings to
+  "production": true, //optional, default true;
+  "debug-mode": false, // optional; whethet to enable debugging; default false
+  "flask-secret-key": "<secret-please-replace>", // secret key for session cookies
+  "flask-template-dir": "../frontend/" // optional; default "../frontend"
 }

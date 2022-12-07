@@ -1,0 +1,45 @@
+{% extends 'base.html' %} {% block content %}
+
+<form class="flex" action="" method="post">
+  <div id="warning" style="background-color: yellow">
+    {% if msg %}{{msg}}{% else %}confirm the deletion of this peering{% endif %}
+  </div>
+  <table>
+    <tr>
+      <td><label for="asn">ASn</label></td>
+      <td>
+        <input
+          type="text"
+          id="asn"
+          readonly="readonly"
+          value="{{request_args['asn']}}"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="node">node</label></td>
+      <td>
+        <input
+          type="text"
+          id="node"
+          readonly="readonly"
+          value="{{request_args['node']}}"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="confirm">confirm</label></td>
+      <td>
+        <input type="checkbox" name="confirm" id="delete-confirm" required />
+      </td>
+    </tr>
+  </table>
+  <div>
+    <a href="../peerings">
+      <input type="button" class="button-green" value="back"
+    /></a>
+    <button type="submit" class="button-red">confirm</button>
+  </div>
+</form>
+
+{% endblock %}
