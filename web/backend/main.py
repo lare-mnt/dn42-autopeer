@@ -389,7 +389,7 @@ def login():
         try:
             print(request.form)
             if request.form["theanswer"] != "42":
-                msg = "what is the answer for everything?"
+                msg = """what is the answer for everything? <a href="https://en.wikipedia.org/wiki/42_(answer)">hint</a>"""
                 return render_template("login.html", session=session, config=config, return_addr=session["return_url"], msg=msg)
             mnt = request.form["mnt"]
             if not mnt.upper().endswith("-MNT"):
