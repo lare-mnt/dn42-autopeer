@@ -295,7 +295,7 @@ def check_peering_data(form):
                     raise ValueError()
                 is_in_allowed = False
                 if session["user-data"]["allowed4"]:
-                    for allowed4 in session["user-data"]["allowed4"].split(","):
+                    for allowed4 in session["user-data"]["allowed4"]:
                         if ipv4 in ip_network(allowed4):
                             is_in_allowed = True
                 if not is_in_allowed:
@@ -312,7 +312,7 @@ def check_peering_data(form):
                 raise ValueError()
             is_in_allowed = False
             if session["user-data"]["allowed6"]:
-                for allowed6 in session["user-data"]["allowed6"].split(","):
+                for allowed6 in session["user-data"]["allowed6"]:
                     if ipv6 in ip_network(allowed6):
                         is_in_allowed = True
             if not is_in_allowed:
@@ -399,16 +399,14 @@ def login():
             int(asn)
             if "allowed4" in request.form:
                 allowed4 = request.form["allowed4"]
-                v4_ranges = allowed4.split(
-                    ",") if "," in allowed4 else [allowed4]
+                v4_ranges = allowed4.split(",") if "," in allowed4 else [allowed4]
                 for v4_range in v4_ranges:
                     IPv4Network(v4_range)
             else:
                 allowed4 = None
             if "allowed6" in request.form:
                 allowed6 = request.form["allowed6"]
-                v6_ranges = allowed6.split(
-                    ",") if "," in allowed6 else [allowed6]
+                v6_ranges = allowed6.split(",") if "," in allowed6 else [allowed6]
                 for v6_range in v6_ranges:
                     IPv6Network(v6_range)
             else:
