@@ -16,7 +16,17 @@
       <td>{{node}}</td>
       <td>{{config["nodes"][node]["country"]}}</td>
       <td>{{config["nodes"][node]["city"]}}</td>
-      <td></td>
+      <td>
+        {% set peerings_percentage =
+        (peerings.amount_by_node(node)/config['nodes'][node]['capacity']*100) %}
+        <div class="progress progress-bar" title="{{peerings.amount_by_node(node)}}/{{config['nodes'][node]['capacity']}}">
+          <div
+            class="progress progress-value"
+            style="width:'{{peerings_percentage}}px'; background-color: {% if (peerings_percentage<80) %}green{% elif (peerings_percentage < 90) %}orange{%else%}red{%endif%};"
+          >
+          </div>
+        </div>
+      </td>
       <td><a href="peerings/new?node={{node}}">peer</a></td>
     </tr>
     {% endfor %}

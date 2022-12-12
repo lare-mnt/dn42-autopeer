@@ -10,6 +10,7 @@ import random
 from functools import wraps
 from ipaddress import ip_address, ip_network, IPv4Network, IPv6Network
 import kioubit_verify
+from peering_manager import PeeringManager
 
 app = Flask(__name__)
 
@@ -22,7 +23,7 @@ class Config (dict):
             if os.path.exists("./config.json"):
                 self.configfile = "./config.json"
             elif os.path.exists("/etc/dn42-autopeer/config.json"):
-                self.configfile = "/etc/dn42-autopeer/config,json"
+                self.configfile = "/etc/dn42-autopeer/config.json"
             else:
                 raise FileNotFoundError(
                     "no config file found in ./config.json or /etc/dn42-autopeer/config.json")
@@ -58,152 +59,19 @@ class Config (dict):
 
         if not "peerings-data" in self._config:
             self._config["peering-data"] = "./peerings"
+        
+        if not "nodes" in self._config:
+            self,_config = {}
+        for node in self._config["nodes"]:
+            if not "capacity" in self._config["nodes"][node]:
+                self._config["nodes"][node]["capacity"] = -1
+        
         logging.info(self._config)
 
 
-class PeeringManager:
-
-    def __init__(self, peerings_file):
-        self._peering_file = peerings_file
-
-        self._load_peerings()
-
-    def _load_peerings(self):
-        if not os.path.exists(self._peering_file):
-            with open(self._peering_file, "x") as p:
-                json.dump({"mnter": {}, "asn": {}}, p)
-        try:
-            with open(self._peering_file, "r") as p:
-                self.peerings = json.load(p)
-        except json.decoder.JSONDecodeError:
-            with open(self._peering_file, "w") as p:
-                json.dump({"mnter": {}, "asn": {}}, p)
-            with open(self._peering_file, "r") as p:
-                self.peerings = json.load(p)
-
-        # self.peerings = {}
-        # missing_peerings = False
-        # for peering in self._peerings:
-        #     if os.path.exists(f"{self._peering_dir}/{peering}.json"):
-        #         with open(f"{self._peering_dir}/{peering}.json") as peer_cfg:
-        #             self.peerings[peering] = json.load(peer_cfg)
-        #     else:
-        #         logging.warning(f"peering with id {peering} doesn't exist. removing reference in `{self._peering_dir}/peerings.json`")
-        #         self._peerings.remove(peering)
-        #         missing_peerings = True
-        # if missing_peerings:
-        #     with open(f"{self._peering_dir}/peerings.json","w") as p:
-        #         json.dump(self._peerings, p, indent=4)
-    def _save_peerings(self):
-        with open(self._peering_file, "w") as p:
-            json.dump(self.peerings, p, indent=4)
-
-    def _update_nodes(mode, peering, new_peering=None):
-        """mode: "add","update","delete
-        peering: peering to send to node (included in peering)
-        new_peering: if mode=="update" the new peering to update to
-        """
-        pass
-
-    def exists(self, asn, node, mnt=None, wg_key=None, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
-        """checks if a peerings with specific data already exists"""
-        # check if mnt is specified, already exists in the database and if that mnt has the specified ASn -> if not: return False
-        if mnt and not (mnt in self.peerings["mnter"] and asn in self.peerings["mnter"][mnt]):
-            return False
-        selected_peerings = self.peerings["asn"][asn]
-        # check if the ASn even has peerings
-        if len(selected_peerings) == 0:
-            return False
-        for p in selected_peerings:
-            if p["node"] == node:
-                if (not wg_key or p["wg_key"] == wg_key) and (not endpoint or p["endpoint"] == endpoint) \
-                        and (not ipv6ll or p["ipv6ll"] == ipv6ll) and (not ipv4 or p["ipv4"] == ipv4) and (not ipv6 or p["ipv6"] == ipv6)\
-                        and (not bgp_mp or p["bgp_mp"] == bgp_mp) and (not bgp_enh or p["bgp_enh"] == bgp_enh):
-                    return True
-        return False
-
-    def get_peerings_by_mnt(self, mnt):
-        # print(self.peerings)
-        try:
-            out = []
-            for asn in self.peerings["mnter"][mnt]:
-                try:
-                    for peering in self.peerings["asn"][asn]:
-                        out.append(peering)
-                except KeyError as e:
-                    pass
-            return out
-        except KeyError:
-            return {}
-
-    def add_peering(self, asn, node, mnt, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
-        # check if this MNT already has a/this asn
-        try:
-            if not asn in self.peerings["mnter"][mnt]:
-                # ... and add it if it hasn't
-                self.peerings[mnt].append(asn)
-        except KeyError:
-            # ... and cerate it if it doesn't have any yet
-            self.peerings["mnter"][mnt] = [asn]
-        try:
-            if not asn in self.peerings["asn"]:
-                self.peerings["asn"][asn] = []
-        except KeyError:
-            self.peerings["asn"][asn] = []
-
-        # deny more than one peering per ASN to one node
-        for peering in self.peerings["asn"][asn]:
-            if peering["node"] == node:
-                return False
-
-        self.peerings["asn"][asn].append({"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key, "endpoint": endpoint,
-                                         "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh})
-
-        self._save_peerings()
-        return True
-
-    def update_peering(self, asn, node, mnt, wg_key, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
-        # check if this MNT already has a/this asn
-        try:
-            if not asn in self.peerings["mnter"][mnt]:
-                # ... and add it if it hasn't
-                self.peerings[mnt].append(asn)
-        except KeyError:
-            # ... and cerate it if it doesn't have any yet
-            self.peerings["mnter"][mnt] = [asn]
-        try:
-            if not asn in self.peerings["asn"]:
-                return False
-        except KeyError:
-            return False
-
-        success = False
-        for pNr in range(len(self.peerings["asn"][asn])):
-            if self.peerings["asn"][asn][pNr]["node"] == node:
-                self.peerings["asn"][asn][pNr] = {"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key,
-                                                  "endpoint": endpoint, "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh}
-                success = True
-        if not success:
-            return False
-        self._save_peerings()
-        return True
-
-    def delete_peering(self, asn, node, mnt, wg_key=None):
-        if not self.exists(asn, node, mnt=mnt, wg_key=wg_key):
-            return False
-        for p in self.peerings["asn"][asn]:
-            if p["node"] == node:
-                if wg_key and p["wg_key"] != wg_key:
-                    continue
-                self.peerings["asn"][asn].remove(p)
-                self._save_peerings()
-                return True
-        # if nothing got found (should have been catched by self.exists)
-        return False
-
 
 config = Config()
-peerings = PeeringManager(config["peerings"])
+peerings = PeeringManager(config)
 kverifyer = kioubit_verify.AuthVerifyer(config["domain"])
 
 
@@ -241,9 +109,9 @@ def check_peering_data(form):
         else:
             new_peering["peer-v6"] = None
         new_peering["bgp-mp"] = form["bgp-multi-protocol"] if "bgp-multi-protocol" in form else "off"
-        new_peering["bgp-mp"] = True if new_peering["bgp-mp"] else False
+        new_peering["bgp-mp"] = True if new_peering["bgp-mp"] == "on" else False
         new_peering["bgp-enh"] = form["bgp-extended-next-hop"] if "bgp-extended-next-hop" in form else "off"
-        new_peering["bgp-enh"] = True if new_peering["bgp-enh"] else False
+        new_peering["bgp-enh"] = True if new_peering["bgp-enh"] == "on" else False
         #new_peering[""] = form["peer-wgkey"]
     except ValueError as e:
         print(f"error: {e.args}")
@@ -322,13 +190,13 @@ def check_peering_data(form):
 
     # check bgp options
     try:
-        if new_peering["bgp-mp"] == "off" and new_peering["bgp-enh"] == "on":
+        if new_peering["bgp-mp"] == False and new_peering["bgp-enh"] == True:
             return False, "extended next hop requires multiprotocol bgp"
-        if new_peering["bgp-mp"] == "off":
+        if new_peering["bgp-mp"] == False:
             if not (new_peering["peer-v4"] and (new_peering["peer-v6"] or new_peering["peer-v6ll"])):
                 return False, "ipv4 and ipv6 addresses required when not having MP-BGP"
     except ValueError:
-        ...
+        pass
     return True, new_peering
 
 
@@ -537,13 +405,13 @@ def index():
     # print(config._config["nodes"])
     # for node in config["nodes"].values():
     #     print (node)
-    return render_template("index.html",  session=session, config=config._config)
+    return render_template("index.html",  session=session, config=config, peerings = peerings)
 
 
+app.static_folder = config["flask-template-dir"]+"/static/"
+app.template_folder = config["flask-template-dir"]
+app.secret_key = config["flask-secret-key"]
 def main():
-    app.static_folder = config["flask-template-dir"]+"/static/"
-    app.template_folder = config["flask-template-dir"]
-    app.secret_key = config["flask-secret-key"]
     if "production" in config and config["production"] == False:
         logging.getLogger(__name__).setLevel(0)
         app.run(host=config["listen"], port=config["port"],

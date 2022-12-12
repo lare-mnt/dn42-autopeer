@@ -1,12 +1,31 @@
 {
   "configurations": [
     {
+      "name": "Python: Flask-backend",
+      "type": "python",
+      "request": "launch",
+      "module": "flask",
+      "cwd": "${workspaceFolder}/web/",
+      "env": { "FLASK_APP": "backend/main.py", "FLASK_DEBUG": "1", "FLASK_RUN_HOST": "0.0.0.0", "FLASK_RUN_PORT": "8042" },
+      "args": ["run", "--no-debugger"],
+      "jinja": true,
+      "justMyCode": true
+    },
+    {
       "name": "Python: Current File",
       "type": "python",
       "request": "launch",
       "program": "${file}",
       "cwd": "${workspaceFolder}/web/",
       "console": "integratedTerminal",
+      "justMyCode": true
+    },
+    {
+      "name": "Python: backend",
+      "type": "python",
+      "request": "launch",
+      "program": "backend/main.py",
+      "cwd": "${workspaceFolder}/web/",
       "justMyCode": true
     }
   ]

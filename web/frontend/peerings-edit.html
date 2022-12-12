@@ -214,13 +214,13 @@
         </tr>
         <tr>
             <td><label for="peer-v4">your ipv4</label></td>
-            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled"onchange="return update_from_v4()" {% if selected_peering["ipv4"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-v4" id="peer-v4"onchange="return update_from_v4()" {% if selected_peering["ipv4"] %}value="{{selected_peering['ipv4']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled" onchange="return update_from_v4()" {% if selected_peering["ipv4"] %} checked {% endif %}></td>
+            <td><input type="text" name="peer-v4" id="peer-v4" onchange="return update_from_v4()" {% if selected_peering["ipv4"] %}value="{{selected_peering['ipv4']}}" {% endif %}></td>
         </tr>
         <tr>
             <td><label for="peer-v6">your ipv6</label></td>
-            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"onchange="return update_from_v6()"{% if selected_peering["ipv6"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-v6" id="peer-v6"onchange="return update_from_v6()" {% if selected_peering["ipv6"] %}value="{{selected_peering['ipv6']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled" onchange="return update_from_v6()"{% if selected_peering["ipv6"] %} checked {% endif %}></td>
+            <td><input type="text" name="peer-v6" id="peer-v6" onchange="return update_from_v6()" {% if selected_peering["ipv6"] %}value="{{selected_peering['ipv6']}}" {% endif %}></td>
         </tr>
         <tr>
             <td><h4>BGP</h4></td>
@@ -228,13 +228,13 @@
             <td></td>
         </tr>
         <tr>
-            <td>MultiProtocol</td>
-            <td><input type="checkbox" name="bgp-multi-protocol" id="bgp-multi-protocol" onchange="return update_from_mpbgp()" {% if selected_peering["bgp-mp"] %} checked {% endif %}></td>
+            <td><label for="bgp-multi-protocol">MultiProtocol</label></td>
+            <td><input type="checkbox" name="bgp-multi-protocol" id="bgp-multi-protocol" onchange="return update_from_mpbgp()" {% if selected_peering["bgp_mp"] == True %} checked {% endif %}></td>
             <td></td>
         </tr>
         <tr>
-            <td>extended next hop</td>
-            <td><input type="checkbox" name="bgp-extended-next-hop" id="bgp-extended-next-hop" onchange="return update_from_enh()" {% if selected_peering["bgp-enh"] %} checked {% endif %}></td>
+            <td><label for="bgp-extended-next-hop">extended next hop</label></td>
+            <td><input type="checkbox" name="bgp-extended-next-hop" id="bgp-extended-next-hop" onchange="return update_from_enh()" {% if selected_peering["bgp_enh"] == True%} checked {% endif %}></td>
             <td></td>
         </tr>
     </table>

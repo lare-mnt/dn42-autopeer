@@ -62,6 +62,72 @@ footer.flex {
     flex-direction: row;
 }
 
+/* # index.html */
+
+/* based on https://codepen.io/t_afif/pen/RwQZLYb */
+.progress-bar {
+    --w: 100px; /* the width*/
+   
+    --background: lightgrey; /* the background color */
+    width: var(--w);
+    margin: 0 10px;
+}
+.progress {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    border: none;
+    height: 10px;
+    border-radius: 10em;
+    background: var(--background);
+}
+
+.progress-value[value]{
+    --color:  /* the progress color */
+    /* linear-gradient(#fff8,#fff0), */
+    /* repeating-linear-gradient(135deg,#0003 0 10px,#0000 0 20px), */
+    /* if < 30% "red" */
+    linear-gradient(green 0 0) 0 /calc(var(--w)*.8 - 100%) 1px,
+    /* if < 60% "orange" */
+    linear-gradient(orange 0 0) 0 /calc(var(--w)*.9 - 100%) 1px,
+    /* else "green" */
+    red;
+    background-color: var(--color);
+    align-self: left;
+    margin: 0;
+}
+
+.progress[value]::-webkit-progress-bar {
+    border-radius: 10em;
+    background: var(--background);
+}
+
+.progress[value]::-webkit-progress-value {
+    border-radius: 10em;
+    background: var(--color);
+}
+.progress[value]::-moz-progress-bar {
+    border-radius: 10em;
+    background-color: var(--color);
+}
+
+/* .progress:before { */
+   /* position:absolute; */
+    /* height:30px; */
+    /* background:green; */
+    /* content:'50%'; hrere you should add the text */
+    /* top:0; */
+    /* left:0; */
+    /* width:50%; */
+    /* display:flex; */
+    /* color:white; */
+    /* align-items:center; */
+    /* justify-content:flex-end; */
+    /* padding-right:10px; */
+/* } */
+  
+
+/* for peerings-{edit,new}.html */
 .example-config {
     background-color: white;
     padding: 1%;
@@ -78,6 +144,7 @@ form>div>* {
     margin: 10px;
 }
 
+/* for peerings.html */
 .peering {
     border-color: var(--other-background);
     border-radius: 10px;
@@ -99,6 +166,11 @@ form>div>* {
     padding: 10px;
 }
 
+.peering>* {
+    width: auto;
+    align-items: center;
+}
+/* button def */
 button,
 input[type=button] {
     background-color: #00000020;
@@ -113,10 +185,6 @@ input[type=button].button-selected {
     color: var(--text-color-dark);
 }
 
-.peering>* {
-    width: auto;
-    align-items: center;
-}
 
 .button-blue {
     border-color: lightblue;
