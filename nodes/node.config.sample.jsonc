@@ -1,0 +1,21 @@
+{
+    "MNT": "YOUR-MNT", // your MNT tag
+    "ASN": "424242000", //Your ASN (used to generate default peer ListenPorts)
+    "listen": "0.0.0.0",
+    "port": 8142,
+    "nodename": "node123",
+    "ACL": ["127.0.0.1"], // address of the server running the webinterface (for ACL); if "listen" is "::"(or other ipv6) and the the server is connecting via ipv4 use"::ffff:<ipv4>"
+    "peerings": "/path/to/peerings.json", // optional; default "$PWD/peerings.json", file to save existing peerings to
+    "production": true, //optional, default true;
+    "debug-mode": false, // optional; whethet to enable debugging; default false
+    "wg-configs": "/etc/wireguard/", // optional, default: "/etc/wireguard/"; directory where the wireguard configs are located
+    "wg-commands": { // {MNT} will get replaced with the lowercase mnter without "-MNT"
+        "enable": "systemctl enable wg-quick@dn42_{MNT}", //command to execute for enabling the wg-interface
+        "up": "systemctl start wg-quick@dn42_{MNT}", //command to execute for starting the wg-interface
+        "down": "systemctl stop wg-quick@dn42_{MNT}", //command to execute for stopping the wg-interface
+        "disable": "systemctl disable wg-quick@dn42_{MNT}" //command to execute for disabling the wg-interface
+    },
+    "bird-peers": "/etc/bird/peers/", // optional, default: "/etc/bird/peers/"; directory where bird peers are to be located
+    "bird-reload": "birdc configure", // optional, default: "birdc configure"; command to reconfigure bird or other bgp daemon
+    "templates": "templates" //optional, default "$PWD/templates"; directory where "wireguard.template.conf" and "bgo-peer.template.conf" are located
+}

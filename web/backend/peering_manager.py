@@ -3,6 +3,8 @@ import os
 import base64
 import logging
 import random
+import threading
+import requests
 
 class NodeCommunicator:
 
@@ -10,6 +12,10 @@ class NodeCommunicator:
         self.name = name
         self.__config = config
         self.__api_addr = config["api-con"]
+    
+    def update(self, action:str, updated_peering:dict):
+        print(requests.api.post(self.__api_addr+"peerings", json=updated_peering).content)
+        input()
 
 class PeeringManager:
 
@@ -24,6 +30,7 @@ class PeeringManager:
             self._nodes[node] = NodeCommunicator(name=node, config=self.__config["nodes"][node])
         
         self._amounts = None
+        self._threads = []
 
     def __load_peerings(self):
         if not os.path.exists(self.__peering_file):
@@ -56,12 +63,18 @@ class PeeringManager:
             json.dump(self.peerings, p, indent=4)
         self._amounts = None
 
-    def _update_nodes(self, mode, peering, new_peering=None):
+    def _update_nodes(self, action:str, peering, new_peering=None):
         """mode: "add","update","delete
         peering: peering to send to node (included in peering)
         new_peering: if mode=="update" the new peering to update to
         """
-        pass
+        if peering["node"] in self._nodes:
+            thread = threading.Thread(target=self._nodes[peering["node"]].update,kwargs={"action":action,"updated_peering":peering if not new_peering else new_peering,})
+            thread.start()
+            self._threads.append(thread)
+        
+        else: return False
+
     def _update_amounts(self):
         __new = {}
         for asn in self.peerings["asn"]:
@@ -154,12 +167,15 @@ class PeeringManager:
         success = False
         for pNr in range(len(self.peerings["asn"][asn])):
             if self.peerings["asn"][asn][pNr]["node"] == node:
-                self.peerings["asn"][asn][pNr] = {"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key,
+                old_peering = self.peerings["asn"][asn][pNr]
+                new_peering = self.peerings["asn"][asn][pNr] = {"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key,
                                                   "endpoint": endpoint, "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh}
                 success = True
         if not success:
             return False
+        
         self._save_peerings()
+        self._update_nodes("update", old_peering, new_peering=new_peering)
         return True
 
     def delete_peering(self, asn, node, mnt, wg_key=None):
