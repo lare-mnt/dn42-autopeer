@@ -6,16 +6,24 @@ import random
 import threading
 import requests
 
+
 class NodeCommunicator:
 
-    def __init__(self, name:str, config):
+    def __init__(self, name: str, config):
         self.name = name
         self.__config = config
         self.__api_addr = config["api-con"]
-    
-    def update(self, action:str, updated_peering:dict):
-        print(requests.api.post(self.__api_addr+"peerings", json=updated_peering).content)
-        input()
+
+    def update(self, action: str, peering: dict):
+        if action == "add":
+            print(requests.post(f"{self.__api_addr}peerings", json=peering))
+        elif action == "update":
+            print(requests.put(f"{self.__api_addr}peerings", json=peering))
+        elif action == "delete":
+            print(requests.delete(f"{self.__api_addr}peerings", json=peering))
+        else:
+            return 400
+
 
 class PeeringManager:
 
@@ -27,8 +35,9 @@ class PeeringManager:
 
         self._nodes = {}
         for node in self.__config["nodes"]:
-            self._nodes[node] = NodeCommunicator(name=node, config=self.__config["nodes"][node])
-        
+            self._nodes[node] = NodeCommunicator(
+                name=node, config=self.__config["nodes"][node])
+
         self._amounts = None
         self._threads = []
 
@@ -63,17 +72,21 @@ class PeeringManager:
             json.dump(self.peerings, p, indent=4)
         self._amounts = None
 
-    def _update_nodes(self, action:str, peering, new_peering=None):
+    def _update_nodes(self, action: str, peering, new_peering=None):
         """mode: "add","update","delete
         peering: peering to send to node (included in peering)
         new_peering: if mode=="update" the new peering to update to
         """
         if peering["node"] in self._nodes:
-            thread = threading.Thread(target=self._nodes[peering["node"]].update,kwargs={"action":action,"updated_peering":peering if not new_peering else new_peering,})
-            thread.start()
-            self._threads.append(thread)
-        
-        else: return False
+            #thread = threading.Thread(target=
+            self._nodes[peering["node"]].update(#), kwargs={
+                                      action=action, peering = peering if not new_peering else new_peering#, })
+            )
+            #thread.start()
+            #self._threads.append(thread)
+
+        else:
+            return False
 
     def _update_amounts(self):
         __new = {}
@@ -84,14 +97,14 @@ class PeeringManager:
                 __new[peering["node"]] += 1
         self._amounts = __new
 
-
     def amount_by_node(self, node_name: str):
-        if self._amounts ==None:
+        if self._amounts == None:
             self._update_amounts()
         try:
             return self._amounts[node_name]
         except KeyError:
             return 0
+
     def exists(self, asn, node, mnt=None, wg_key=None, endpoint=None, ipv6ll=None, ipv4=None, ipv6=None, bgp_mp=True, bgp_enh=True):
         """checks if a peerings with specific data already exists"""
         # check if mnt is specified, already exists in the database and if that mnt has the specified ASn -> if not: return False
@@ -143,9 +156,10 @@ class PeeringManager:
             if peering["node"] == node:
                 return False
 
-        self.peerings["asn"][asn].append({"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key, "endpoint": endpoint,
-                                         "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh})
-
+        peering = {"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key, "endpoint": endpoint,
+                   "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh}
+        self.peerings["asn"][asn].append(peering)
+        self._update_nodes("add", peering=peering)
         self._save_peerings()
         return True
 
@@ -169,11 +183,11 @@ class PeeringManager:
             if self.peerings["asn"][asn][pNr]["node"] == node:
                 old_peering = self.peerings["asn"][asn][pNr]
                 new_peering = self.peerings["asn"][asn][pNr] = {"MNT": mnt, "ASN": asn, "node": node, "wg_key": wg_key,
-                                                  "endpoint": endpoint, "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh}
+                                                                "endpoint": endpoint, "ipv6ll": ipv6ll, "ipv4": ipv4, "ipv6": ipv6, "bgp_mp": bgp_mp, "bgp_enh": bgp_enh}
                 success = True
         if not success:
             return False
-        
+
         self._save_peerings()
         self._update_nodes("update", old_peering, new_peering=new_peering)
         return True
@@ -187,6 +201,7 @@ class PeeringManager:
                     continue
                 self.peerings["asn"][asn].remove(p)
                 self._save_peerings()
+                self._update_nodes("delete", peering=p)
                 return True
         # if nothing got found (should have been catched by self.exists)
         return False
