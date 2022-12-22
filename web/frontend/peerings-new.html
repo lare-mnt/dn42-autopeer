@@ -245,7 +245,7 @@
 [Interface] <br>
 PrivateKey = &ltyour private key&gt
 ListenPort = <span id="example-config-peer-port">2{{config["ASN"][-4:]}}</span>
-<span id="example-config-ipv4">PostUp = ip address add <span id="example-config-peer-ipv4">...</span>/32 peer <span id="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6">PostUp = ip address add <span id="example-config-peer-ipv6">...</span>/128 peer <span id="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6ll">PostUp = ip address add <span id="example-config-peer-ipv6ll">...</span>/128 peer <span id="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span></span>
+<span id="example-config-ipv4">PostUp = ip address add dev %i <span id="example-config-peer-ipv4">...</span>/32 peer <span id="example-config-node-ipv4">{% if selected_node %}{{config["nodes"][selected_node]["internal-v4"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6">PostUp = ip address add dev %i <span id="example-config-peer-ipv6">...</span>/128 peer <span id="example-config-node-ipv6">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6"]}} {% else %} ... {% endif %}</span><br></span><span id="example-config-ipv6ll">PostUp = ip address add dev %i <span id="example-config-peer-ipv6ll">...</span>/128 peer <span id="example-config-node-ipv6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span></span>
 Table = off
 
 [Peer]
