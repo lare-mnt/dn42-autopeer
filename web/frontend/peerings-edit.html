@@ -200,27 +200,27 @@
         <tr>
             <td><label for="peer-wgkey">your Wireguard Publickey</label></td>
             <td></td>
-            <td><input type="text" name="peer-wgkey" id="peer-wgkey" maxlength="44" minlength="44" required value="{{selected_peering['wg_key']}}"></td>
+            <td><input type="text" name="peer-wgkey" id="peer-wgkey" maxlength="44" minlength="44" required {% if selected_peering %}value="{{selected_peering['wg_key']}}"{%endif%}></td>
         </tr>
         <tr>
             <td><label for="peer-endpoint">your Endpoint</label></td>
-            <td><input type="checkbox" name="peer-endpoint-enabled" id="peer-endpoint-enabled" {% if selected_peering["endpoint"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-endpoint" id="peer-endpoint" onchange="return update_from_endpoint()" {% if selected_peering["endpoint"] %}value="{{selected_peering['endpoint']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-endpoint-enabled" id="peer-endpoint-enabled" {% if selected_peering %}{% if selected_peering["endpoint"] %} checked {% endif %}{%endif%}></td>
+            <td><input type="text" name="peer-endpoint" id="peer-endpoint" onchange="return update_from_endpoint()" {% if selected_peering %}{% if selected_peering["endpoint"] %}value="{{selected_peering['endpoint']}}"{% endif %}{%endif%}></td>
         </tr>
         <tr>
             <td><label for="peer-v6ll">your ipv6 LinkLocal</label></td>
-            <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" onchange="return update_from_v6ll()"{% if selected_peering["ipv6ll"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-v6ll" id="peer-v6ll" onchange="return update_from_v6ll()"{% if selected_peering["ipv6ll"] %}value="{{selected_peering['ipv6ll']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" onchange="return update_from_v6ll()"{% if selected_peering %}{% if selected_peering["ipv6ll"] %} checked {% endif %}{%endif%}></td>
+            <td><input type="text" name="peer-v6ll" id="peer-v6ll" onchange="return update_from_v6ll()"{% if selected_peering %}{% if selected_peering["ipv6ll"] %}value="{{selected_peering['ipv6ll']}}" {% endif %}{%endif%}></td>
         </tr>
         <tr>
             <td><label for="peer-v4">your ipv4</label></td>
-            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled" onchange="return update_from_v4()" {% if selected_peering["ipv4"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-v4" id="peer-v4" onchange="return update_from_v4()" {% if selected_peering["ipv4"] %}value="{{selected_peering['ipv4']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled" onchange="return update_from_v4()" {% if selected_peering %}{% if selected_peering["ipv4"] %} checked {% endif %}{%endif%}></td>
+            <td><input type="text" name="peer-v4" id="peer-v4" onchange="return update_from_v4()" {% if selected_peering %}{% if selected_peering["ipv4"] %}value="{{selected_peering['ipv4']}}" {% endif %}{%endif%}></td>
         </tr>
         <tr>
             <td><label for="peer-v6">your ipv6</label></td>
-            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled" onchange="return update_from_v6()"{% if selected_peering["ipv6"] %} checked {% endif %}></td>
-            <td><input type="text" name="peer-v6" id="peer-v6" onchange="return update_from_v6()" {% if selected_peering["ipv6"] %}value="{{selected_peering['ipv6']}}" {% endif %}></td>
+            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled" onchange="return update_from_v6()"{% if selected_peering %}{% if selected_peering["ipv6"] %} checked {% endif %}{%endif%}></td>
+            <td><input type="text" name="peer-v6" id="peer-v6" onchange="return update_from_v6()" {% if selected_peering %}{% if selected_peering["ipv6"] %}value="{{selected_peering['ipv6']}}" {% endif %}{%endif%}></td>
         </tr>
         <tr>
             <td><h4>BGP</h4></td>
@@ -229,12 +229,12 @@
         </tr>
         <tr>
             <td><label for="bgp-multi-protocol">MultiProtocol</label></td>
-            <td><input type="checkbox" name="bgp-multi-protocol" id="bgp-multi-protocol" onchange="return update_from_mpbgp()" {% if selected_peering["bgp_mp"] == True %} checked {% endif %}></td>
+            <td><input type="checkbox" name="bgp-multi-protocol" id="bgp-multi-protocol" onchange="return update_from_mpbgp()" {% if selected_peering %}{% if selected_peering["bgp_mp"] == True %} checked {% endif %}{%endif%}></td>
             <td></td>
         </tr>
         <tr>
             <td><label for="bgp-extended-next-hop">extended next hop</label></td>
-            <td><input type="checkbox" name="bgp-extended-next-hop" id="bgp-extended-next-hop" onchange="return update_from_enh()" {% if selected_peering["bgp_enh"] == True%} checked {% endif %}></td>
+            <td><input type="checkbox" name="bgp-extended-next-hop" id="bgp-extended-next-hop" onchange="return update_from_enh()" {% if selected_peering %}{% if selected_peering["bgp_enh"] == True%} checked {% endif %}{%endif%}></td>
             <td></td>
         </tr>
     </table>

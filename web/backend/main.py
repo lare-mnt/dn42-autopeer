@@ -320,6 +320,8 @@ def peerings_delete():
 def peerings_edit():
     print(session)
     if request.method == "GET":
+        if not "node" in request.args or not request.args["node"]:
+            return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg="no peering selected, please click one of the buttons above")
         mnt_peerings = peerings.get_peerings_by_mnt(session["login"])
         # print(mnt_peerings)
         if "node" in request.args and request.args["node"] in config["nodes"]:
@@ -336,7 +338,7 @@ def peerings_edit():
         print(request.args)
         print(request.form)
         if not "node" in request.args or not request.args["node"]:
-            return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg="no node specified, please click one of the buttons above")
+            return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg="no peering selected, please click one of the buttons above")
 
         peering_valid, peering_or_msg = check_peering_data(request.form)
         print(peering_valid)
