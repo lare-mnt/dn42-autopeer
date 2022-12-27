@@ -17,7 +17,7 @@
         <a href="{{config['base-dir']}}logout">logout</a>
       </div>
       {% else %}
-      <a href="{{config['base-dir']}}login?return=/peerings">login</a>{%endif%}
+      <a href="{{config['base-dir']}}login?return={{config['base-dir']}}peerings">login</a>{%endif%}
     </header>
     <div class="content flex">{% block content %} {% endblock %}</div>
     <footer class="flex">

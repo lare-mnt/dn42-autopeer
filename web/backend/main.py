@@ -205,7 +205,8 @@ def auth_required():
         @wraps(f)
         def decorated(*args, **kwargs):
             if not "login" in session:
-                return redirect(f"{config['base-dir']}login?return={request.url}")
+                request_url = f"{config['base-dir']}{request.url}".replace("//", "/")
+                return redirect(f"{config['base-dir']}login?return={request_url}")
             else:
                 return f(*args, **kwargs)
         return decorated
@@ -243,7 +244,7 @@ def kioubit_auth():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    return redirect(config["base-dir"])
 
 
 @app.route("/login", methods=["GET", "POST"])
