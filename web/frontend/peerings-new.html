@@ -250,7 +250,7 @@ Table = off
 
 [Peer]
 PublicKey = <span id="exmple-config-node-pubkey">{% if selected_node %}{{config["nodes"][selected_node]["wg-key"]}}{% else %} ... {% endif %}</span>
-Endpoint = <span id="exmple-config-node-endpoint">{% if selected_node %}{{config["nodes"][selected_node]["endpoint"]}}{% else %} ... {% endif %}</span>:<span id="example-config-node-port">{% if selected_node %}{% if session["user-data"]["asn"].startswith("AS424242") %}5{{session["user-data"]["asn"][-4:]}}{% else %} ... {% endif %}{% else %} ... {% endif %}</span>
+Endpoint = <span id="exmple-config-node-endpoint">{% if selected_node %}{{config["nodes"][selected_node]["endpoint"]}}{% else %} ... {% endif %}</span>:<span id="example-config-node-port">{% if selected_node %}{% if session["user-data"]["asn"].startswith("424242") %}2{{session["user-data"]["asn"][-4:]}}{% else %} ... {% endif %}{% else %} ... {% endif %}</span>
 AllowedIPs = <span id="example-config-node-v6ll">{% if selected_node %}{{config["nodes"][selected_node]["internal-v6ll"]}} {% else %} ... {% endif %}</span>,172.20.0.0/14,172.31.0.0/16,10.0.0.0/8,fd00::/8
     </pre>
     

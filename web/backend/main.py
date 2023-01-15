@@ -205,7 +205,7 @@ def auth_required():
         @wraps(f)
         def decorated(*args, **kwargs):
             if not "login" in session:
-                request_url = f"{config['base-dir']}{request.url}".replace("//", "/")
+                request_url = f"{config['base-dir']}{request.full_path}".replace("//", "/")
                 return redirect(f"{config['base-dir']}login?return={request_url}")
             else:
                 return f(*args, **kwargs)
@@ -332,8 +332,9 @@ def peerings_edit():
                     selected_peering = p
                     print(p)
                     break
-            return render_template("peerings-edit.html", session=session, config=config, mnt_peerings=mnt_peerings, selected_peering=selected_peering)
+            return render_template("peerings-edit.html", session=session, config=config, mnt_peerings=mnt_peerings, selected_peering=selected_peering, selected_node=selected_peering["node"])
         else:
+            print(request.args)
             return render_template("peerings-edit.html", session=session, config=config, mnt_peerings=mnt_peerings, selected_peering=None)
     elif request.method == "POST":
         print(request.args)
