@@ -137,7 +137,7 @@ class PeeringManager:
         if mode == "add":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
             wg_enable = subprocess.run(self.__config["wg-commands"]["enable"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
@@ -145,7 +145,7 @@ class PeeringManager:
             wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_up)
             time.sleep(5)
-            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as bgp_file:
+            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as bgp_file:
                 bgp_file.write(bgp_conf)
             bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(bgp_reload)
@@ -154,7 +154,7 @@ class PeeringManager:
         elif mode == "update":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
             wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
