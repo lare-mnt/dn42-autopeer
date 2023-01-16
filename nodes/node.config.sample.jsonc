@@ -9,11 +9,11 @@
     "production": true, //optional, default true;
     "debug-mode": false, // optional; whethet to enable debugging; default false
     "wg-configs": "/etc/wireguard/", // optional, default: "/etc/wireguard/"; directory where the wireguard configs are located
-    "wg-commands": { // {MNT} will get replaced with the lowercase mnter without "-MNT"
-        "enable": "systemctl enable wg-quick@dn42_{MNT}", //command to execute for enabling the wg-interface
-        "up": "systemctl start wg-quick@dn42_{MNT}", //command to execute for starting the wg-interface
-        "down": "systemctl stop wg-quick@dn42_{MNT}", //command to execute for stopping the wg-interface
-        "disable": "systemctl disable wg-quick@dn42_{MNT}" //command to execute for disabling the wg-interface
+    "wg-commands": { // {PEERING} will get replaced with the lowercase mnter without "-MNT" followed by the last four digits of the ASn
+        "enable": "./wg-services.sh enable {PEERING}", //command to execute for enabling the wg-interface
+        "up": "./wg-services.sh start {PEERING}", //command to execute for starting the wg-interface
+        "down": "./wg-services.sh stop {PEERING}", //command to execute for stopping the wg-interface
+        "disable": "./wg-services.sh disable {PEERING}" //command to execute for disabling the wg-interface
     },
     "bird-peers": "/etc/bird/peers/", // optional, default: "/etc/bird/peers/"; directory where bird peers are to be located
     "bird-reload": "birdc configure", // optional, default: "birdc configure"; command to reconfigure bird or other bgp daemon

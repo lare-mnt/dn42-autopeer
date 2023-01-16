@@ -130,52 +130,52 @@ class PeeringManager:
 
     def __generate_wg_conf(self, peering: dict):
         return render_template("wireguard.template.conf", peering=peering)
-    def __generate_bird_conf(self, peering:dict):
+    def __generate_bird_conf(self, peering: dict):
         return render_template("bgp-peer.template.conf", peering=peering)
 
     def __install_peering(self, mode: str, peering: dict):
         if mode == "add":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
-            wg_enable = subprocess.run(self.__config["wg-commands"]["enable"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_enable = subprocess.run(self.__config["wg-commands"]["enable"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_enable)
-            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_up)
             time.sleep(5)
-            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}.conf", "w") as bgp_file:
+            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as bgp_file:
                 bgp_file.write(bgp_conf)
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(bgp_reload)
             
             return 200
         elif mode == "update":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['asn'][-4:]}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
-            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_down)
-            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_up)
             time.sleep(5)
-            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}.conf", "w") as bgp_file:
+            with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as bgp_file:
                 bgp_file.write(bgp_conf)
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(bgp_reload)
             
             return 200
         elif mode == "delete":
-            os.remove(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}.conf")
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            os.remove(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf")
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(bgp_reload)
             time.sleep(5)
-            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_down)
-            wg_disable = subprocess.run(self.__config["wg-commands"]["disable"].replace("{MNT}",peering['MNT'][:-4].lower()).split(" "))
+            wg_disable = subprocess.run(self.__config["wg-commands"]["disable"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
             print(wg_disable)
             
             return 200
