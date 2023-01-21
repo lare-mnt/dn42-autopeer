@@ -27,7 +27,7 @@ Type=simple
 Restart=on-failure
 RestartSec=5s
 WorkingDirectory=</path/to/autopeering/>web
-ExecStart=start.sh
+ExecStart=</path/to/autopeering>/web/start.sh
 
 [Install]
 WantedBy=multi-user.target
@@ -72,7 +72,7 @@ Type=simple
 Restart=on-failure
 RestartSec=5s
 WorkingDirectory=</path/to/autopeering>/nodes
-ExecStart=start.sh
+ExecStart=</path/to/autopeering>/nodes/start.sh
 
 [Install]
 WantedBy=multi-user.target
