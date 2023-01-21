@@ -137,45 +137,45 @@ class PeeringManager:
         if mode == "add":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['ASN'][-6:] if len(peering['ASN']) >=6 else peering['ASN']}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
-            wg_enable = subprocess.run(self.__config["wg-commands"]["enable"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_enable = subprocess.run(self.__config["wg-commands"]["enable"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_enable)
-            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_up)
             time.sleep(5)
             with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as bgp_file:
                 bgp_file.write(bgp_conf)
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(bgp_reload)
             
             return 200
         elif mode == "update":
             wg_conf = self.__generate_wg_conf(peering)
             bgp_conf = self.__generate_bird_conf(peering)
-            with open(f"{self.__config['wg-configs']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as wg_file:
+            with open(f"{self.__config['wg-configs']}/dn42_{peering['ASN'][-6:] if len(peering['ASN']) >=6 else peering['ASN']}.conf", "w") as wg_file:
                 wg_file.write(wg_conf)
             
-            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_down)
-            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_up = subprocess.run(self.__config["wg-commands"]["up"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_up)
             time.sleep(5)
             with open(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf", "w") as bgp_file:
                 bgp_file.write(bgp_conf)
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(bgp_reload)
             
             return 200
         elif mode == "delete":
             os.remove(f"{self.__config['bird-peers']}/dn42_{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}.conf")
-            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            bgp_reload = subprocess.run(self.__config["bird-reload"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(bgp_reload)
             time.sleep(5)
-            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_down = subprocess.run(self.__config["wg-commands"]["down"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_down)
-            wg_disable = subprocess.run(self.__config["wg-commands"]["disable"].replace("{PEERING}",f"{peering['MNT'][:-4].lower()}_{peering['ASN'][-4:]}").split(" "))
+            wg_disable = subprocess.run(self.__config["wg-commands"]["disable"].replace("{PEERING}",peering['ASN'][-6:] if len(peering["ASN"]) >=6 else peering["ASN"]).split(" "))
             print(wg_disable)
             
             return 200
@@ -301,9 +301,9 @@ class PeeringsRoute(Resource):
 
         requested_peerings = peerings.get_peerings_by_asn(args["ASN"])
         if requested_peerings:
-            return {"success": True, "asn": args["ASN"], "peerings": requested_peerings}, 200
+            return {"success": True, "ASN": args["ASN"], "peerings": requested_peerings}, 200
         else:
-            return {"success": False, "asn": args["ASN"], "error": "not found", "peerings": []}, 404
+            return {"success": False, "ASN": args["ASN"], "error": "not found", "peerings": []}, 404
 
     @check_ACL()
     def post(self):
