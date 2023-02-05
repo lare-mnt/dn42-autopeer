@@ -202,22 +202,22 @@
         <tr>
             <td><label for="peer-endpoint">your Endpoint</label></td>
             <td><input type="checkbox" name="peer-endpoint-enabled" id="peer-endpoint-enabled" checked></td>
-            <td><input type="text" name="peer-endpoint" id="peer-endpoint" onchange="return update_from_endpoint()"></td>
+            <td><input type="text" name="peer-endpoint" id="peer-endpoint" onchange="return update_from_endpoint()" placeholder="node.example.org:1234"></td>
         </tr>
         <tr>
             <td><label for="peer-v6ll">your ipv6 LinkLocal</label></td>
             <td><input type="checkbox" name="peer-v6ll-enabled" id="peer-v6ll-enabled" onchange="return update_from_v6ll()" checked></td>
-            <td><input type="text" name="peer-v6ll" id="peer-v6ll" onchange="return update_from_v6ll()"></td>
+            <td><input type="text" name="peer-v6ll" id="peer-v6ll" onchange="return update_from_v6ll()" placeholder="fe80::xxxx (recommended/preferred)" title="default when using extended next hop"></td>
         </tr>
         <tr>
             <td><label for="peer-v4">your ipv4</label></td>
-            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled"onchange="return update_from_v4()"></td>
-            <td><input type="text" name="peer-v4" id="peer-v4"onchange="return update_from_v4()"></td>
+            <td><input type="checkbox" name="peer-v4-enabled" id="peer-v4-enabled" onchange="return update_from_v4()"></td>
+            <td><input type="text" name="peer-v4" id="peer-v4" onchange="return update_from_v4()" placeholder="172.2x.yyy.zzz" title="only required when not using extended next hop or not MultiProtocol"></td>
         </tr>
         <tr>
             <td><label for="peer-v6">your ipv6</label></td>
-            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled"onchange="return update_from_v6()"></td>
-            <td><input type="text" name="peer-v6" id="peer-v6"onchange="return update_from_v6()"></td>
+            <td><input type="checkbox" name="peer-v6-enabled" id="peer-v6-enabled" onchange="return update_from_v6()"></td>
+            <td><input type="text" name="peer-v6" id="peer-v6" onchange="return update_from_v6()" placeholder="fdxx:yyyy:zzzz:..." title="only required when ipv6 LinkLocal and/or MultiProtocol BGP are not supported"></td>
         </tr>
         <tr>
             <td><h4>BGP</h4></td>

@@ -163,9 +163,14 @@ def check_peering_data(form):
                     raise ValueError()
                 is_in_allowed = False
                 if session["user-data"]["allowed4"]:
-                    for allowed4 in session["user-data"]["allowed4"]:
+                    if not isinstance(session["user-data"]["allowed4"],tuple):
+                        allowed4 = session["user-data"]["allowed4"]
                         if ipv4 in ip_network(allowed4):
                             is_in_allowed = True
+                    else:
+                        for allowed4 in session["user-data"]["allowed4"]:
+                            if ipv4 in ip_network(allowed4):
+                                is_in_allowed = True
                 if not is_in_allowed:
                     return False, "supplied ipv4 addr not in allowed ip range"
             else:
@@ -180,12 +185,18 @@ def check_peering_data(form):
                 raise ValueError()
             is_in_allowed = False
             if session["user-data"]["allowed6"]:
-                for allowed6 in session["user-data"]["allowed6"]:
+                if not isinstance(session["user-data"]["allowed6"],tuple):
+                    allowed6 = session["user-data"]["allowed6"]
                     if ipv6 in ip_network(allowed6):
                         is_in_allowed = True
+                else:
+                    for allowed6 in session["user-data"]["allowed6"]:
+                        if ipv6 in ip_network(allowed6):
+                            is_in_allowed = True
             if not is_in_allowed:
                 return False, "supplied ipv6 addr not in allowed ip range"
-    except ValueError:
+    except ValueError as e:
+        print(e)
         return False, "invalid ip address(es) supplied"
 
     # check bgp options
