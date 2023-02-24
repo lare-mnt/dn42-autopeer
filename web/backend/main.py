@@ -163,7 +163,7 @@ def check_peering_data(form):
                     raise ValueError()
                 is_in_allowed = False
                 if session["user-data"]["allowed4"]:
-                    if not isinstance(session["user-data"]["allowed4"],tuple):
+                    if not isinstance(session["user-data"]["allowed4"],list):
                         allowed4 = session["user-data"]["allowed4"]
                         if ipv4 in ip_network(allowed4):
                             is_in_allowed = True
@@ -185,7 +185,7 @@ def check_peering_data(form):
                 raise ValueError()
             is_in_allowed = False
             if session["user-data"]["allowed6"]:
-                if not isinstance(session["user-data"]["allowed6"],tuple):
+                if not isinstance(session["user-data"]["allowed6"],list):
                     allowed6 = session["user-data"]["allowed6"]
                     if ipv6 in ip_network(allowed6):
                         is_in_allowed = True
