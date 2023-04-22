@@ -323,8 +323,8 @@ class PeeringsRoute(Resource):
         parser.add_argument('ipv6ll')
         parser.add_argument('ipv4')
         parser.add_argument('ipv6')
-        parser.add_argument('bgp_mp')
-        parser.add_argument('bgp_enh')
+        parser.add_argument('bgp_mp', type = bool)
+        parser.add_argument('bgp_enh', type = bool)
         args = parser.parse_args()  # parse arguments to dictionary
 
         if not peerings.exists(asn=args["ASN"], wg_key=args["wg_key"]):
@@ -355,8 +355,8 @@ class PeeringsRoute(Resource):
         parser.add_argument('ipv6ll', store_missing=False)
         parser.add_argument('ipv4', store_missing=False)
         parser.add_argument('ipv6', store_missing=False)
-        parser.add_argument('bgp_mp', store_missing=False)
-        parser.add_argument('bgp_enh', store_missing=False)
+        parser.add_argument('bgp_mp', type=bool, store_missing=False)
+        parser.add_argument('bgp_enh', type=bool, store_missing=False)
         args = parser.parse_args()  # parse arguments to dictionary
         print(args)
         if peerings.exists(asn=args["ASN"], wg_key=args["wg_key"]):
