@@ -239,8 +239,10 @@ class PeeringManager:
         for pNr in range(len(self.peerings[asn])):
             if self.peerings[asn][pNr]["node"] == node:
                 old_peering = self.peerings[asn][pNr]
-                new_peering = self.peerings[asn][pNr] = {"MNT": MNT if MNT!=NotSpecified else old_peering["MNT"], "ASN": asn, "node": config["nodename"], "wg_key": wg_key,
-                                                         "endpoint": endpoint if endpoint!=NotSpecified else old_peering["endpoint"], "ipv6ll": ipv6ll if ipv6ll != NotSpecified else old_peering["ipv6ll"], "ipv4": ipv4 if ipv4 != NotSpecified else old_peering["ipv4"], "ipv6": ipv6 if ipv6 != NotSpecified else old_peering["ipv6"], "bgp_mp": bgp_mp if bgp_mp != NotSpecified else old_peering["bgp_mp"], "bgp_enh": bgp_enh if bgp_enh != NotSpecified else old_peering["bgp_enh"]}
+                new_peering = self.peerings[asn][pNr] = {"MNT": MNT if MNT!=NotSpecified else old_peering["MNT"], "ASN": asn, "node": config["nodename"], 
+                                                        "wg_key": wg_key,"endpoint": endpoint if endpoint!=NotSpecified else old_peering["endpoint"], 
+                                                        "ipv6ll": ipv6ll if ipv6ll != NotSpecified else old_peering["ipv6ll"], "ipv4": ipv4 if ipv4 != NotSpecified else old_peering["ipv4"], "ipv6": ipv6 if ipv6 != NotSpecified else old_peering["ipv6"], 
+                                                        "bgp_mp": bgp_mp if bgp_mp != NotSpecified else old_peering["bgp_mp"], "bgp_enh": bgp_enh if bgp_enh != NotSpecified else old_peering["bgp_enh"]}
                 success = True
         if not success:
             return False, 404
