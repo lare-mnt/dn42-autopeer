@@ -265,7 +265,7 @@ def login():
         session["return_url"] = request.args["return"] if "return" in request.args else ""
 
         return render_template("login.html", session=session, config=config, return_addr=session["return_url"])
-    elif request.method == "POST" and config["debug-mode"]:
+    elif request.method == "POST" and (config["debug-mode"] or session["login"] == config["MNT"]):
         try:
             print(request.form)
             if request.form["theanswer"] != "42":
@@ -293,7 +293,7 @@ def login():
                 allowed6 = None
             session["user-data"] = {'asn': asn, 'allowed4': allowed4,
                                     'allowed6': allowed6, 'mnt': mnt, 'authtype': "debug"}
-            session["login"] = mnt
+            session["login"] = mnt if not "login" in session else session["login"]
             return redirect(session["return_url"])
         except ValueError:
             msg = "at least one of the values provided is wrong/invalid"
@@ -316,10 +316,10 @@ def peerings_delete():
     elif request.method in ["POST", "DELETE"]:
         if not request.form["confirm"] == "on":
             return render_template("peerings-delete.html", session=session, config=config, request_args=request.args, msg="you have to confirm the deletion first")
-        if not peerings.exists(request.args["asn"], request.args["node"], mnt=session["login"]):
+        if not peerings.exists(request.args["asn"], request.args["node"], mnt=session["user-data"]["mnt"]):
             return render_template("peerings-delete.html", session=session, config=config, request_args=request.args, msg="the peering you requested to delete doesn't exist (anymore) or you are not authorized to delete it")
         print(str(request))
-        if not peerings.delete_peering(request.args["asn"], request.args["node"], mnt=session["login"]):
+        if not peerings.delete_peering(request.args["asn"], request.args["node"], mnt=session["user-data"]["mnt"]):
             return render_template("peerings-delete.html", session=session, config=config, request_args=request.args, msg="deletion of the peering requested failed, maybe you are not authorized or that peering doesn't exist")
         session["msg"] = {"msg": "peer-del",
                           "node": request.args["node"], "asn": request.args["asn"]}
@@ -334,7 +334,7 @@ def peerings_edit():
     if request.method == "GET":
         if not "node" in request.args or not request.args["node"]:
             return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg="no peering selected, please click one of the buttons above")
-        mnt_peerings = peerings.get_peerings_by_mnt(session["login"])
+        mnt_peerings = peerings.get_peerings_by_mnt(session["user-data"]["mnt"])
         # print(mnt_peerings)
         if "node" in request.args and request.args["node"] in config["nodes"]:
             selected_peering = None
@@ -357,7 +357,7 @@ def peerings_edit():
         print(peering_valid)
         print(peering_or_msg)
         selected_peering = None
-        mnt_peerings = peerings.get_peerings_by_mnt(session["login"])
+        mnt_peerings = peerings.get_peerings_by_mnt(session["user-data"]["mnt"])
         for p in mnt_peerings:
             if p["node"] == request.args["node"] and p["ASN"] == request.args["asn"]:
                 selected_peering = p
@@ -365,7 +365,7 @@ def peerings_edit():
                 break
         if not peering_valid:
             return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg=peering_or_msg, selected_peering=selected_peering), 400
-        if not peerings.update_peering(session["user-data"]["asn"], request.args["node"], session["login"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
+        if not peerings.update_peering(session["user-data"]["asn"], request.args["node"], session["user-data"]["mnt"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
             return render_template("peerings-edit.html",  session=session, config=config, peerings=peerings, msg="such a peering doesn't exist(yet)", selected_peering=selected_peering), 400
 
         return redirect(f"{config['base-dir']}peerings")
@@ -391,7 +391,7 @@ def peerings_new():
 
         if not peering_valid:
             return render_template("peerings-new.html",  session=session, config=config, peerings=peerings, msg=peering_or_msg), 400
-        if not peerings.add_peering(session["user-data"]["asn"], request.args["node"], session["login"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
+        if not peerings.add_peering(session["user-data"]["asn"], request.args["node"], session["user-data"]["mnt"], peering_or_msg["peer-wgkey"], peering_or_msg["peer-endpoint"], peering_or_msg["peer-v6ll"], peering_or_msg["peer-v4"], peering_or_msg["peer-v6"], peering_or_msg["bgp-mp"], peering_or_msg["bgp-enh"]):
             return render_template("peerings-new.html",  session=session, config=config, peerings=peerings, msg="this ASN already has a peering with the requested node"), 400
 
         return redirect(f"{config['base-dir']}peerings")

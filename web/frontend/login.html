@@ -21,7 +21,7 @@
   </button>
 </form>
 
-{% if config["debug-mode"] %}
+{% if config["debug-mode"] or ("login" in session and session["login"] == config["MNT"])%}
 <form action="" method="post" class="flex">
   <label for="debug"
     >Debug login, if you see this in Production contact {{config["MNT"]}}</label

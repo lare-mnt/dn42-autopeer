@@ -5,7 +5,7 @@
   >
 </div>
 <div class="flex flex-row">
-  {% for peering in peerings.get_peerings_by_mnt(session["login"]) %}
+  {% for peering in peerings.get_peerings_by_mnt(session["user-data"]["mnt"]) %}
   <div class="peering">
     <div>
       <div>Node: {{peering["node"]}}</div>
